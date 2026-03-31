@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>South Bay Transit Apartments</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--sf:#111827;--sf2:#1a2234;--bd:#1e293b;--tx:#e2e8f0;--mt:#64748b;--ac:#f97316;--bart:#3b82f6;--cal:#10b981;--vta:#eab308}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
+.layout{display:flex;height:100vh}
+.sidebar{width:400px;min-width:400px;height:100vh;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:1000}
+.sh{padding:16px 20px 12px;border-bottom:1px solid var(--bd);background:linear-gradient(135deg,#0f172a,#1a1030)}
+.sh h1{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(90deg,#f97316,#ef4444,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sh .sub{font-size:11px;color:var(--mt);margin-top:3px}
+.filters{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:7px}
+.sb{background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:8px 11px;color:var(--tx);font-size:13px;font-family:'Outfit',sans-serif;outline:none;width:100%;transition:border-color .2s}
+.sb:focus{border-color:var(--ac)}
+.fr{display:flex;gap:5px;flex-wrap:wrap}
+.fb{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:4px 9px;color:var(--mt);font-size:10px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.fb:hover{border-color:var(--ac);color:var(--tx)}
+.fb.on{background:rgba(249,115,22,.15);border-color:var(--ac);color:var(--ac)}
+.fb.bt.on{background:rgba(59,130,246,.15);border-color:var(--bart);color:var(--bart)}
+.fb.ct.on{background:rgba(16,185,129,.15);border-color:var(--cal);color:var(--cal)}
+.fb.vt.on{background:rgba(234,179,8,.15);border-color:var(--vta);color:var(--vta)}
+.cb{padding:5px 14px;font-size:11px;color:var(--mt);border-bottom:1px solid var(--bd)}
+.al{flex:1;overflow-y:auto}
+.al::-webkit-scrollbar{width:4px}
+.al::-webkit-scrollbar-track{background:var(--sf)}
+.al::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.ac{padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .12s}
+.ac:hover{background:var(--sf2)}
+.ac.sel{background:rgba(249,115,22,.07);border-left:3px solid var(--ac)}
+.an{font-size:13px;font-weight:600;color:#f1f5f9;margin-bottom:2px}
+.aa{font-size:11px;color:var(--mt);margin-bottom:5px}
+.at{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.tg{font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;display:inline-block}
+.st{color:#f59e0b;font-size:11px;letter-spacing:.3px}
+.rt{font-size:10px;color:var(--mt)}
+.ap{font-size:10px;color:var(--mt);margin-top:4px}
+.ap a{color:#94a3b8;text-decoration:none}
+.lk{margin-top:5px;display:flex;gap:5px}
+.lk a{font-size:9px;font-weight:600;padding:3px 7px;border-radius:4px;text-decoration:none;background:rgba(249,115,22,.12);color:var(--ac);border:1px solid rgba(249,115,22,.25);transition:background .15s}
+.lk a:hover{background:rgba(249,115,22,.25)}
+.mc{flex:1;position:relative}
+#map{width:100%;height:100%}
+.leaflet-popup-content-wrapper{background:var(--sf)!important;color:var(--tx)!important;border-radius:10px!important;border:1px solid var(--bd)!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important}
+.leaflet-popup-tip{background:var(--sf)!important}
+.leaflet-popup-content{margin:12px 14px!important;font-family:'Outfit',sans-serif!important;line-height:1.5!important}
+.pn{font-weight:600;font-size:14px;margin-bottom:3px}
+.pa{font-size:12px;color:var(--mt);margin-bottom:4px}
+.pr{font-size:12px;color:#f59e0b}
+.pp{font-size:11px;color:var(--mt);margin-top:3px}
+.pl{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;color:var(--ac);text-decoration:none}
+.si{background:none;border:none}
+.legend{position:absolute;bottom:20px;left:20px;z-index:1000;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--mt);line-height:2}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:100%;height:45vh}.mc{height:55vh}}
+</style>
+</head>
+<body>
+<div class="layout">
+<div class="sidebar">
+<div class="sh">
+<h1>SOUTH BAY TRANSIT APTS</h1>
+<div class="sub"><span id="tc">75</span> apartments • Leaflet + OpenStreetMap • Zero API keys</div>
+</div>
+<div class="filters">
+<input type="text" class="sb" id="search" placeholder="Search name, address, or city...">
+<div class="fr" id="cf"></div>
+<div class="fr" id="tf"></div>
+<div class="fr" id="sf"></div>
+</div>
+<div class="cb" id="cb">Showing 75 of 75</div>
+<div class="al" id="al"></div>
+</div>
+<div class="mc">
+<div id="map"></div>
+<div class="legend">
+<div><span class="legend-dot" style="background:var(--bart)"></span> BART station</div>
+<div><span class="legend-dot" style="background:var(--cal)"></span> Caltrain station</div>
+<div><span class="legend-dot" style="background:#a855f7"></span> BART + Caltrain</div>
+<div style="margin-top:4px;border-top:1px solid var(--bd);padding-top:4px">Colored dots = apartments by city</div>
+</div>
+</div>
+</div>
+<script>
+const D=[
+{n:"Lantana at Milpitas Station",a:"1675 S Milpitas Blvd",c:"Milpitas",r:4.7,v:213,p:"(844) 208-6785",t:"BART",lt:37.4105,ln:-121.8887,id:"ChIJQ39f8S3Pj4ARaTZp4nE8bTM"},
+{n:"555 Apartment Homes",a:"549 S Park Victoria Dr",c:"Milpitas",r:4.5,v:244,p:"(209) 703-4025",t:"BART",lt:37.4273,ln:-121.8822,id:"ChIJR2nkO8POj4ARjNNDyydpdWQ"},
+{n:"Gideon at The Fields",a:"150 Market St",c:"Milpitas",r:4.8,v:100,p:"(408) 837-7991",t:"BART",lt:37.4108,ln:-121.8994,id:"ChIJ3UrlrtXPj4ARybp6b0bGlho"},
+{n:"Graham at The Fields",a:"1455 McCandless Dr",c:"Milpitas",r:4.6,v:159,p:"(408) 539-5684",t:"BART",lt:37.4107,ln:-121.8999,id:"ChIJRwgNxhjPj4ARVki4lRGOdnM"},
+{n:"Capitol 650",a:"650 E Capitol Ave",c:"Milpitas",r:3.8,v:267,p:"(844) 414-1353",t:"BART",lt:37.409,ln:-121.8927,id:"ChIJzcpzX7DOj4ARNjOpDUPOHYg"},
+{n:"Mill Creek Apartments",a:"440 Dixon Landing Rd",c:"Milpitas",r:4.2,v:470,p:"(408) 946-2955",t:"BART",lt:37.4543,ln:-121.9189,id:"ChIJUVqzULvIj4ARjq_RfhRJXcs"},
+{n:"ILARA Apartments",a:"1201 S Main St",c:"Milpitas",r:3.6,v:201,p:"(408) 935-9300",t:"BART",lt:37.4123,ln:-121.9023,id:"ChIJ7U1pqErJj4AR1oHytisRxLY"},
+{n:"Eleanor",a:"312 Gates Dr",c:"Milpitas",r:3.8,v:391,p:"(844) 997-4491",t:"BART",lt:37.4094,ln:-121.8965,id:"ChIJ8W9ZPlPPj4ARHWsxqCyiMpM"},
+{n:"Turing at The Fields",a:"1355 McCandless Dr",c:"Milpitas",r:4.0,v:245,p:"(408) 692-2876",t:"BART",lt:37.4117,ln:-121.8998,id:"ChIJm_XUoLXOj4ARS5vood7y_ZA"},
+{n:"Milpa Village Townhomes",a:"260 S Main St",c:"Milpitas",r:4.5,v:16,p:"(408) 655-8219",t:"BART",lt:37.4269,ln:-121.9057,id:"ChIJq6qWlivJj4ARv4LIdSHJl1g"},
+{n:"eaves Fremont",a:"231 Woodcreek Common",c:"Fremont",r:4.6,v:376,p:"(510) 298-1834",t:"BART",lt:37.4936,ln:-121.9274,id:"ChIJH9lNBV3Gj4ARaiQ3deDS0Og"},
+{n:"Archstone Fremont Center",a:"39410 Civic Center Dr",c:"Fremont",r:4.1,v:184,p:"(510) 792-1299",t:"BART",lt:37.5538,ln:-121.9734,id:"ChIJtcQF-Y3Aj4ARaWF2FI4raZE"},
+{n:"Avalon Fremont",a:"39939 Stevenson Common",c:"Fremont",r:4.2,v:356,p:"(510) 279-0325",t:"BART",lt:37.5432,ln:-121.972,id:"ChIJv5q-m7_Aj4ARSCowWePSYlU"},
+{n:"Creekside Village",a:"2999 Sequoia Terrace",c:"Fremont",r:4.6,v:361,p:"(844) 795-9756",t:"BART",lt:37.5649,ln:-122.0035,id:"ChIJp2hhjY-_j4ARmSVAvSdLZV8"},
+{n:"The Presidio",a:"2000 Walnut Ave",c:"Fremont",r:3.6,v:260,p:"(844) 556-1672",t:"BART",lt:37.5576,ln:-121.9719,id:"ChIJzYJ3i4zAj4AR05AVnFFzcho"},
+{n:"Vue Fremont",a:"37200 Paseo Padre Pkwy",c:"Fremont",r:4.2,v:63,p:"(510) 402-2506",t:"BART",lt:37.5642,ln:-122.0034,id:"ChIJ9Y9WQYW_j4AR4hkftBW1iaY"},
+{n:"Koda on Fremont",a:"39867 Fremont Blvd",c:"Fremont",r:4.3,v:106,p:"(844) 763-4912",t:"BART",lt:37.5415,ln:-121.9763,id:"ChIJQQux-AzBj4ARuW5cpL_jeHQ"},
+{n:"Glenmoor Green",a:"38850 Farwell Dr",c:"Fremont",r:4.8,v:94,p:"(510) 574-8374",t:"BART",lt:37.5348,ln:-122.0018,id:"ChIJI3j6EV2_j4AR55p1TigTh0I"},
+{n:"Coronado Apartments",a:"3777 Mowry Ave",c:"Fremont",r:4.2,v:47,p:"(541) 623-2572",t:"BART",lt:37.5498,ln:-121.9882,id:"ChIJ-a-GrZzAj4AR3l4fCnnWSe0"},
+{n:"Fremont Arms",a:"37811 Fremont Blvd",c:"Fremont",r:4.3,v:58,p:"(510) 797-4520",t:"BART",lt:37.5547,ln:-122.002,id:"ChIJ--RmZXi_j4AR8g_vXRKYYpM"},
+{n:"B Street Apartments",a:"22650 Main St",c:"Hayward",r:4.4,v:10,p:"(415) 237-6240",t:"BART",lt:37.6725,ln:-122.082,id:"ChIJJ0bHXtiTj4ARcgg9wliYaWw"},
+{n:"Bart Plaza",a:"29360 Dixon St",c:"Hayward",r:4.4,v:9,p:"(510) 538-2285",t:"BART",lt:37.6309,ln:-122.0518,id:"ChIJYWisnESUj4AR9S3wkJWQwVc"},
+{n:"Legacy at Hayward",a:"28168 Mission Blvd",c:"Hayward",r:4.3,v:68,p:"(833) 918-3530",t:"BART",lt:37.6383,ln:-122.0558,id:"ChIJoyEvHpCVj4ARlnZGasfcZmM"},
+{n:"Bart Springs",a:"29033 Dixon St",c:"Hayward",r:4.1,v:8,p:"(510) 537-1957",t:"BART",lt:37.6326,ln:-122.0553,id:"ChIJ2ZeDMkKUj4ARj4yJ_MWrLdk"},
+{n:"The Mix at SoHay",a:"29213 Mission Blvd",c:"Hayward",r:4.3,v:29,p:"(510) 974-7854",t:"BART",lt:37.6325,ln:-122.0507,id:"ChIJF9eite-Vj4ARs23D3jX93iI"},
+{n:"Bentley Place",a:"22525 3rd St",c:"Hayward",r:4.8,v:4,p:"(510) 390-7321",t:"BART",lt:37.6772,ln:-122.0787,id:"ChIJdzQCN9eTj4ARvEhkBSMPsKE"},
+{n:"Summerwood",a:"21701 Foothill Blvd",c:"Hayward",r:3.7,v:55,p:"(833) 202-9993",t:"BART",lt:37.6815,ln:-122.0892,id:"ChIJAzM9WX-Rj4ARsq5NCSk_IgU"},
+{n:"AVE Santa Clara",a:"2240 Calle De Luna",c:"Santa Clara",r:4.6,v:61,p:"(833) 554-1118",t:"Caltrain",lt:37.4089,ln:-121.964,id:"ChIJxXFU1hrJj4ARDSaenf25BJE"},
+{n:"Santana Terrace",a:"190 N Winchester Blvd",c:"Santa Clara",r:4.9,v:66,p:"(408) 898-9718",t:"Caltrain",lt:37.3287,ln:-121.9506,id:"ChIJ9Z8K65bLj4ARDI1mc9mG0Q4"},
+{n:"Santa Clara Square",a:"3320 Montgomery Dr",c:"Santa Clara",r:4.2,v:565,p:"(949) 299-5089",t:"Caltrain",lt:37.3811,ln:-121.9731,id:"ChIJCelZFPLJj4AR41b4sav538A"},
+{n:"Hidden Lake",a:"3375 Homestead Rd",c:"Santa Clara",r:4.7,v:52,p:"(833) 242-6730",t:"Caltrain",lt:37.3381,ln:-121.9901,id:"ChIJM_Au0XnKj4ARO6HKbwZdz3w"},
+{n:"The Clara",a:"5150 Calle Del Sol",c:"Santa Clara",r:4.0,v:73,p:"(669) 338-4391",t:"Caltrain",lt:37.4081,ln:-121.965,id:"ChIJt3o7AgDJj4ARYjM2gFC6Biw"},
+{n:"The Benton",a:"588 El Camino Real",c:"Santa Clara",r:4.6,v:189,p:"(833) 920-3676",t:"Caltrain",lt:37.3534,ln:-121.9398,id:"ChIJAz54EcIr3YAR-XymfsRRgVk"},
+{n:"Park Central",a:"1050 Benton St",c:"Santa Clara",r:4.4,v:97,p:"(408) 831-7660",t:"Caltrain",lt:37.3501,ln:-121.946,id:"ChIJ09rNQK3Lj4ARL5KY1wchHdU"},
+{n:"Estancia",a:"1650 Hope Dr",c:"Santa Clara",r:4.1,v:378,p:"(408) 969-0364",t:"Caltrain",lt:37.3993,ln:-121.9565,id:"ChIJSzuGD6PJj4ARM9czsdP6KqA"},
+{n:"Balmoral",a:"3585 Agate Dr",c:"Santa Clara",r:4.5,v:20,p:"(408) 280-6000",t:"Caltrain",lt:37.3697,ln:-121.9955,id:"ChIJSX4WvaC3j4AR0xne2gnhZG0"},
+{n:"Diridon West",a:"717 W Julian St",c:"San Jose",r:4.6,v:402,p:"(669) 222-8085",t:"BART/Caltrain",lt:37.3338,ln:-121.9065,id:"ChIJlSjB6HrLj4ARvhQBf3J17-E"},
+{n:"Avalon at Cahill Park",a:"754 The Alameda",c:"San Jose",r:4.4,v:273,p:"(408) 216-8945",t:"BART/Caltrain",lt:37.3309,ln:-121.9053,id:"ChIJ0wyO1VjLj4ARroIvJs7Lu2E"},
+{n:"Avalon on the Alameda",a:"1300 The Alameda",c:"San Jose",r:4.3,v:269,p:"(408) 216-8947",t:"Caltrain",lt:37.3325,ln:-121.9124,id:"ChIJvZYYkWfLj4ARKvzEuDKxlWg"},
+{n:"Avalon Morrison Park",a:"899 Morrison Park Dr",c:"San Jose",r:4.2,v:241,p:"(408) 352-6789",t:"Caltrain",lt:37.3343,ln:-121.9084,id:"ChIJy7U7W2fLj4ARyY6L2Wbm2UY"},
+{n:"787 The Alameda",a:"787 The Alameda",c:"San Jose",r:4.2,v:99,p:"(844) 379-4035",t:"BART/Caltrain",lt:37.332,ln:-121.9054,id:"ChIJl7Ux917Lj4ARJ2o0ORBUDWA"},
+{n:"Modera San Pedro Sq",a:"28 N Almaden Ave",c:"San Jose",r:4.2,v:113,p:"(650) 963-1330",t:"Caltrain",lt:37.3352,ln:-121.8941,id:"ChIJG0MA9pTNj4ARgbp_yCuK7TU"},
+{n:"Museum Park",a:"465 W San Carlos St",c:"San Jose",r:4.0,v:91,p:"(408) 975-9450",t:"Caltrain",lt:37.3266,ln:-121.8975,id:"ChIJZanTvajMj4AR8K3RCuQBViM"},
+{n:"Foundry Commons",a:"868 S 5th St",c:"San Jose",r:4.1,v:195,p:"(833) 828-2035",t:"VTA",lt:37.3256,ln:-121.8768,id:"ChIJB5D34crMj4ARMOMSC3zJgB0"},
+{n:"Lenzen Square",a:"790 Lenzen Ave",c:"San Jose",r:4.6,v:5,p:"(408) 286-9595",t:"Caltrain",lt:37.3356,ln:-121.9099,id:"ChIJXYz9-GbLj4ARH8-EY13ZW7w"},
+{n:"Almaden Lake Village",a:"1045 Coleman Rd",c:"S. San Jose",r:3.9,v:110,p:"(669) 338-1018",t:"VTA",lt:37.2441,ln:-121.8695,id:"ChIJk-rse2QxjoARbWw7uLz_6ps"},
+{n:"DUO Apartments",a:"6670 Emergent Way",c:"S. San Jose",r:4.3,v:171,p:"(408) 224-8640",t:"VTA",lt:37.2407,ln:-121.7888,id:"ChIJsYuj7YovjoARpMjmixj6jTc"},
+{n:"eaves San Jose",a:"1895 N Capitol Ave",c:"San Jose",r:4.3,v:385,p:"(408) 216-8948",t:"VTA",lt:37.4023,ln:-121.881,id:"ChIJSXodrqHOj4ARBVPKNo3CN_w"},
+{n:"Ladera",a:"398 Ortega Ave",c:"Mountain View",r:4.8,v:46,p:"(833) 495-1492",t:"Caltrain",lt:37.4008,ln:-122.1047,id:"ChIJhw_aSpyxj4ARJmCmH8RDFys"},
+{n:"Avalon Towers",a:"2400 W El Camino Real",c:"Mountain View",r:4.6,v:217,p:"(650) 528-2130",t:"Caltrain",lt:37.3992,ln:-122.1071,id:"ChIJm6QDA5iwj4ARCZYf8k6JiOc"},
+{n:"Avalon Mountain View",a:"1600 Villa St",c:"Mountain View",r:4.7,v:233,p:"(650) 528-2128",t:"Caltrain",lt:37.3976,ln:-122.0866,id:"ChIJfYitT7Swj4ARqlGv4vl-YYc"},
+{n:"The Tillery",a:"1720 Villa St",c:"Mountain View",r:4.6,v:62,p:"(833) 964-4210",t:"Caltrain",lt:37.3983,ln:-122.0898,id:"ChIJNzJag-Gxj4AR04FrSwxKrhY"},
+{n:"eaves Creekside",a:"151 Calderon Ave",c:"Mountain View",r:4.4,v:222,p:"(650) 528-2129",t:"Caltrain",lt:37.391,ln:-122.0717,id:"ChIJO7afMCW3j4AR9E2cTuZRRvw"},
+{n:"599 Castro",a:"560 Hope St",c:"Mountain View",r:4.5,v:24,p:"(844) 346-1361",t:"Caltrain",lt:37.3886,ln:-122.081,id:"ChIJvxRMW2O3j4ARQQwK03m0gN4"},
+{n:"eaves at Middlefield",a:"555 W Middlefield Rd",c:"Mountain View",r:4.5,v:424,p:"(650) 528-2127",t:"Caltrain",lt:37.3986,ln:-122.0704,id:"ChIJTSeIGDi3j4ARZuD_lkzu-dI"},
+{n:"Palo Alto Plaza",a:"541 Del Medio Ave",c:"Mountain View",r:4.6,v:97,p:"(650) 935-4362",t:"Caltrain",lt:37.4041,ln:-122.1161,id:"ChIJBfV9BZ2wj4ARKG_SqKQurcU"},
+{n:"Greendale",a:"1200 Dale Ave",c:"Mountain View",r:4.6,v:117,p:"(650) 314-9971",t:"Caltrain",lt:37.3721,ln:-122.0647,id:"ChIJeRtJNsO2j4ARpQ16ZMMKo1g"},
+{n:"Montrose",a:"1720 W El Camino Real",c:"Mountain View",r:4.4,v:133,p:"(650) 318-5554",t:"Caltrain",lt:37.391,ln:-122.0938,id:"ChIJewpFXsiwj4ARYmrX0OzOiLw"},
+{n:"Sunshine Gardens",a:"132-150 W Dana St",c:"Mountain View",r:4.5,v:28,p:"(650) 968-5695",t:"Caltrain",lt:37.3899,ln:-122.0715,id:"ChIJqSAuTiW3j4ARbVOiHZ4_7HA"},
+{n:"Madera Apartments",a:"455 W Evelyn Ave",c:"Mountain View",r:4.5,v:182,p:"(650) 241-2205",t:"Caltrain",lt:37.3923,ln:-122.0739,id:"ChIJXwFo5jC3j4ARp0o5eyyqvhE"},
+{n:"Park Place",a:"851 Church St",c:"Mountain View",r:4.1,v:279,p:"(650) 300-5290",t:"Caltrain",lt:37.3891,ln:-122.0844,id:"ChIJ20Ok0Mywj4AR0Ugc7wjSl54"},
+{n:"100 Moffett",a:"100 Moffett Blvd",c:"Mountain View",r:4.2,v:171,p:"(650) 376-8928",t:"Caltrain",lt:37.3962,ln:-122.0778,id:"ChIJUdCocTa3j4ARbkM5oF4OCVg"},
+{n:"Regency at MV",a:"333 Escuela Ave",c:"Mountain View",r:4.0,v:101,p:"(650) 729-1458",t:"Caltrain",lt:37.3974,ln:-122.0931,id:"ChIJ0WDlOrewj4ARt7QnJKHL0Gw"},
+{n:"The Shadows",a:"750 N Shoreline Blvd",c:"Mountain View",r:4.1,v:91,p:"(650) 265-1766",t:"Caltrain",lt:37.4054,ln:-122.0785,id:"ChIJP6ha0U23j4ARRsq8lqbIW9g"},
+{n:"Forest Glen",a:"1 Forest Glen St",c:"Mountain View",r:4.7,v:13,p:"(650) 564-2220",t:"Caltrain",lt:37.4061,ln:-122.0906,id:"ChIJCc8qYK6wj4ARXeNwV8xvZoc"},
+{n:"The Palomino",a:"2755 El Camino Real",c:"Palo Alto",r:4.9,v:25,p:"(650) 456-7563",t:"Caltrain",lt:37.4235,ln:-122.1423,id:"ChIJ_28CRe66j4ARMOJCmnr-LV4"},
+{n:"Palo Alto Place",a:"565 Arastradero Rd",c:"Palo Alto",r:4.2,v:21,p:"(833) 715-3297",t:"Caltrain",lt:37.4086,ln:-122.1241,id:"ChIJt-nnEHy6j4ARSdeLV-3WIwQ"},
+{n:"Union Plaza",a:"535 Arastradero Rd",c:"Palo Alto",r:4.9,v:16,p:"(650) 493-8570",t:"Caltrain",lt:37.4091,ln:-122.1237,id:"ChIJj-wTCny6j4AR18RYjlEQM-I"},
+{n:"430 Forest",a:"430 Forest Ave",c:"Palo Alto",r:5.0,v:2,p:"(650) 380-3413",t:"Caltrain",lt:37.4459,ln:-122.1574,id:"ChIJgRBWhLm7j4ARlFaoffPqJR0"},
+{n:"Springline",a:"550 Oak Grove Ave",c:"Menlo Park",r:4.8,v:77,p:"(650) 582-1380",t:"Caltrain",lt:37.4554,ln:-122.1848,id:"ChIJTyb7ATmlj4ARhVg2lUK-J7c"},
+{n:"Vasara",a:"110 Constitution Dr",c:"Menlo Park",r:4.5,v:160,p:"(415) 991-4190",t:"Caltrain",lt:37.4845,ln:-122.1782,id:"ChIJJUkIPiOjj4ARoJjuJaY-dIw"},
+{n:"Atherton Park Forest",a:"1670 El Camino Real",c:"Menlo Park",r:4.5,v:11,p:"(650) 325-2001",t:"Caltrain",lt:37.4588,ln:-122.1921,id:"ChIJRbYkqqCkj4AR_jag5KijL2E"},
+{n:"ROEN Menlo Park",a:"3645 Haven Ave",c:"Menlo Park",r:3.5,v:119,p:"(650) 675-5448",t:"Caltrain",lt:37.4864,ln:-122.1826,id:"ChIJmzL5OTGjj4AR8tSHlTNMI8I"},
+{n:"Cityline Sunnyvale",a:"241 S Taaffe St",c:"Sunnyvale",r:5.0,v:10,p:"(408) 736-7609",t:"Caltrain",lt:37.3753,ln:-122.0328,id:"ChIJl1ZbdJC3j4ARc8DEi2-54Lg"},
+{n:"481 on Mathilda",a:"481 S Mathilda Ave",c:"Sunnyvale",r:4.4,v:116,p:"(650) 547-8866",t:"Caltrain",lt:37.3725,ln:-122.0362,id:"ChIJs1D7d2C2j4ARHwKU1PfmjFk"},
+{n:"Ironworks",a:"457 E Evelyn Ave",c:"Sunnyvale",r:4.2,v:101,p:"(650) 542-7466",t:"Caltrain",lt:37.3763,ln:-122.0251,id:"ChIJwwH_v0K2j4ARshTuS9bofNw"},
+{n:"Villa Del Sol",a:"355 E Evelyn Ave",c:"Sunnyvale",r:4.6,v:147,p:"(408) 990-3451",t:"Caltrain",lt:37.377,ln:-122.0273,id:"ChIJT-8XzkK2j4AR9Xc4UQzqVCc"},
+];
+
+const CC={Milpitas:"#ef4444",Fremont:"#3b82f6",Hayward:"#8b5cf6","Santa Clara":"#10b981","San Jose":"#f97316","S. San Jose":"#f97316","Mountain View":"#06b6d4",Sunnyvale:"#eab308","Palo Alto":"#ec4899","Menlo Park":"#a855f7"};
+const CI=["Milpitas","Fremont","Hayward","Santa Clara","San Jose","S. San Jose","Mountain View","Sunnyvale","Palo Alto","Menlo Park"];
+const ST=[
+{n:"Hayward BART",lt:37.6699,ln:-122.0870,t:"b"},{n:"South Hayward BART",lt:37.6348,ln:-122.0571,t:"b"},
+{n:"Union City BART",lt:37.5910,ln:-122.0172,t:"b"},{n:"Fremont BART",lt:37.5574,ln:-121.9764,t:"b"},
+{n:"Warm Springs BART",lt:37.5024,ln:-121.9395,t:"b"},{n:"Milpitas BART",lt:37.4104,ln:-121.8910,t:"b"},
+{n:"Berryessa BART",lt:37.3685,ln:-121.8748,t:"b"},
+{n:"San Jose Diridon",lt:37.3297,ln:-121.9021,t:"x"},{n:"Santa Clara Caltrain",lt:37.3529,ln:-121.9363,t:"c"},
+{n:"Lawrence Caltrain",lt:37.3715,ln:-121.9967,t:"c"},{n:"Sunnyvale Caltrain",lt:37.3786,ln:-122.0309,t:"c"},
+{n:"Mountain View Caltrain",lt:37.3946,ln:-122.0764,t:"c"},{n:"San Antonio Caltrain",lt:37.4069,ln:-122.1070,t:"c"},
+{n:"California Ave Caltrain",lt:37.4292,ln:-122.1422,t:"c"},{n:"Palo Alto Caltrain",lt:37.4432,ln:-122.1649,t:"c"},
+{n:"Menlo Park Caltrain",lt:37.4547,ln:-122.1828,t:"c"},
+];
+
+let S={c:"All",t:"All",s:"rating",q:""},map,mk=[],sel=-1;
+
+function init(){
+map=L.map('map',{zoomControl:false}).setView([37.42,-121.98],11);
+L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+subdomains:'abcd',maxZoom:19}).addTo(map);
+
+ST.forEach(s=>{
+const cl=s.t==='b'?'#3b82f6':s.t==='c'?'#10b981':'#a855f7';
+const ic=L.divIcon({className:'si',html:`<div style="width:10px;height:10px;border-radius:50%;background:${cl};border:2px solid ${cl}44;box-shadow:0 0 8px ${cl}55;opacity:.7"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
+L.marker([s.lt,s.ln],{icon:ic}).addTo(map).bindTooltip(s.n,{permanent:false,direction:'top',offset:[0,-8]});
+});
+
+const cf=document.getElementById('cf');
+cf.innerHTML=`<button class="fb on" onclick="fC('All')">All</button>`+CI.map(c=>`<button class="fb" onclick="fC('${c}')">${c}</button>`).join('');
+const tf=document.getElementById('tf');
+tf.innerHTML=`<button class="fb on" onclick="fT('All')">All Transit</button><button class="fb bt" onclick="fT('BART')">BART</button><button class="fb ct" onclick="fT('Caltrain')">Caltrain</button><button class="fb vt" onclick="fT('VTA')">VTA</button>`;
+const sf=document.getElementById('sf');
+sf.innerHTML=`<button class="fb on" data-s="rating" onclick="fS('rating')">Rating ↓</button><button class="fb" data-s="reviews" onclick="fS('reviews')">Reviews ↓</button><button class="fb" data-s="name" onclick="fS('name')">A-Z</button>`;
+document.getElementById('search').addEventListener('input',e=>{S.q=e.target.value;render()});
+render();
+}
+
+function fC(v){S.c=v;document.getElementById('cf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All':x===v)});render()}
+function fT(v){S.t=v;document.getElementById('tf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All Transit':x===v)});render()}
+function fS(v){S.s=v;document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===v));render()}
+
+function gF(){
+let l=D.filter(a=>{
+if(S.c!=='All'&&a.c!==S.c)return false;
+if(S.t!=='All'&&!a.t.includes(S.t))return false;
+if(S.q){const q=S.q.toLowerCase();if(!a.n.toLowerCase().includes(q)&&!a.a.toLowerCase().includes(q)&&!a.c.toLowerCase().includes(q))return false}
+return true});
+if(S.s==='rating')l.sort((a,b)=>b.r-a.r);
+else if(S.s==='reviews')l.sort((a,b)=>b.v-a.v);
+else if(S.s==='name')l.sort((a,b)=>a.n.localeCompare(b.n));
+return l}
+
+function sr(r){const f=Math.floor(r),h=r%1>=.3;return"★".repeat(f)+(h?"½":"")+"☆".repeat(5-f-(h?1:0))}
+function tt(t){if(t.includes("BART")&&t.includes("Caltrain"))return'<span class="tg" style="background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)">BART/Caltrain</span>';if(t.includes("BART"))return'<span class="tg" style="background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)">BART</span>';if(t==="VTA")return'<span class="tg" style="background:rgba(234,179,8,.12);color:#facc15;border:1px solid rgba(234,179,8,.25)">VTA</span>';return'<span class="tg" style="background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)">Caltrain</span>'}
+
+function render(){
+const f=gF();sel=-1;
+document.getElementById('cb').textContent=`Showing ${f.length} of ${D.length}`;
+document.getElementById('tc').textContent=D.length;
+const al=document.getElementById('al');
+al.innerHTML=f.map((a,i)=>{const co=CC[a.c]||'#f97316';return`<div class="ac" id="cd-${i}" onclick="go(${i})"><div class="an">${a.n}</div><div class="aa">${a.a}, ${a.c}</div><div class="at"><span class="tg" style="background:${co}18;color:${co};border:1px solid ${co}40">${a.c}</span>${tt(a.t)}<span class="st">${sr(a.r)}</span><span class="rt">${a.r} (${a.v})</span></div><div class="ap"><a href="tel:${a.p}">${a.p}</a></div><div class="lk"><a href="https://www.google.com/maps/place/?q=place_id:${a.id}" target="_blank" rel="noopener">Google Maps →</a></div></div>`}).join('');
+
+mk.forEach(m=>map.removeLayer(m));mk=[];
+f.forEach((a,i)=>{
+const co=CC[a.c]||'#f97316';
+const ic=L.divIcon({className:'si',html:`<div style="width:14px;height:14px;border-radius:50%;background:${co};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .15s"></div>`,iconSize:[19,19],iconAnchor:[9,9]});
+const m=L.marker([a.lt,a.ln],{icon:ic}).addTo(map);
+m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div><div class="pr">${sr(a.r)} ${a.r} (${a.v} reviews)</div><div class="pp">${a.p}</div><a class="pl" href="https://www.google.com/maps/place/?q=place_id:${a.id}" target="_blank">Open in Google Maps →</a>`,{maxWidth:280});
+m.on('click',()=>{document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));const cd=document.getElementById(`cd-${i}`);if(cd){cd.classList.add('sel');cd.scrollIntoView({behavior:'smooth',block:'center'})}});
+mk.push(m)});
+if(f.length>0){const g=L.featureGroup(mk);map.fitBounds(g.getBounds().pad(0.08))}
+}
+
+function go(i){
+const f=gF(),a=f[i];if(!a)return;
+document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));
+document.getElementById(`cd-${i}`).classList.add('sel');
+map.flyTo([a.lt,a.ln],15,{duration:.8});
+if(mk[i])mk[i].openPopup()}
+
+window.fC=fC;window.fT=fT;window.fS=fS;window.go=go;
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
