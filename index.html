@@ -6,59 +6,143 @@
 <title>South Bay Transit Apartments</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0e1a;--sf:#111827;--sf2:#1a2234;--bd:#1e293b;--tx:#e2e8f0;--mt:#64748b;--ac:#f97316;--bart:#3b82f6;--cal:#10b981;--vta:#eab308}
+:root{
+  --bg:#06080f;--sf:rgba(15,20,35,0.85);--sf2:rgba(25,32,52,0.9);--glass:rgba(20,26,45,0.6);
+  --bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.1);
+  --tx:#e2e8f0;--mt:#64748b;--ac:#f97316;--ac2:#fb923c;
+  --bart:#3b82f6;--cal:#10b981;--vta:#eab308;
+  --glow:rgba(249,115,22,0.15);--glow2:rgba(249,115,22,0.3)
+}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
-.layout{display:flex;height:100vh}
-.sidebar{width:400px;min-width:400px;height:100vh;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:1000}
-.sh{padding:16px 20px 12px;border-bottom:1px solid var(--bd);background:linear-gradient(135deg,#0f172a,#1a1030)}
-.sh h1{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(90deg,#f97316,#ef4444,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sh .sub{font-size:11px;color:var(--mt);margin-top:3px}
-.filters{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:7px}
-.sb{background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:8px 11px;color:var(--tx);font-size:13px;font-family:'Outfit',sans-serif;outline:none;width:100%;transition:border-color .2s}
-.sb:focus{border-color:var(--ac)}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 20% 40%,rgba(59,130,246,0.06),transparent),
+  radial-gradient(ellipse 60% 40% at 80% 60%,rgba(249,115,22,0.05),transparent),
+  radial-gradient(ellipse 50% 50% at 50% 50%,rgba(139,92,246,0.04),transparent);
+  pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:24px 24px;pointer-events:none;z-index:0}
+.layout{display:flex;height:100vh;position:relative;z-index:1}
+
+.sidebar{width:420px;min-width:420px;height:100vh;
+  background:var(--sf);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-right:1px solid var(--bd2);display:flex;flex-direction:column;z-index:1000}
+
+.sh{padding:20px 22px 16px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(30,15,50,0.95))}
+.sh::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,0.08),rgba(236,72,153,0.06),transparent);
+  animation:shimmer 6s ease-in-out infinite;pointer-events:none}
+@keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
+.sh::after{content:'';position:absolute;top:8px;right:30px;width:4px;height:4px;border-radius:50%;
+  background:var(--ac);box-shadow:
+    20px 12px 0 rgba(59,130,246,0.6),45px -5px 0 rgba(236,72,153,0.5),
+    -15px 18px 0 rgba(139,92,246,0.5),60px 8px 0 rgba(16,185,129,0.5),
+    35px 20px 0 rgba(249,115,22,0.4);
+  animation:float 4s ease-in-out infinite;pointer-events:none}
+@keyframes float{0%,100%{transform:translateY(0) scale(1);opacity:0.6}50%{transform:translateY(-6px) scale(1.2);opacity:1}}
+.sh h1{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;letter-spacing:-0.5px;position:relative;
+  background:linear-gradient(90deg,#f97316,#ef4444,#ec4899,#a855f7,#f97316);background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 4s linear infinite}
+@keyframes gradShift{to{background-position:200% center}}
+.sh .sub{font-size:11px;color:var(--mt);margin-top:5px;font-weight:400;position:relative}
+.sh .sub span{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ac)}
+
+.filters{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:8px;
+  background:rgba(10,14,26,0.4);backdrop-filter:blur(10px)}
+.sb{background:rgba(10,14,26,0.6);border:1px solid var(--bd2);border-radius:10px;padding:10px 14px;color:var(--tx);
+  font-size:13px;font-family:'Outfit',sans-serif;outline:none;width:100%;transition:all .25s;backdrop-filter:blur(8px)}
+.sb:focus{border-color:var(--ac);box-shadow:0 0 20px rgba(249,115,22,0.12)}
+.sb::placeholder{color:rgba(100,116,139,0.7)}
 .fr{display:flex;gap:5px;flex-wrap:wrap}
-.fb{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:4px 9px;color:var(--mt);font-size:10px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
-.fb:hover{border-color:var(--ac);color:var(--tx)}
-.fb.on{background:rgba(249,115,22,.15);border-color:var(--ac);color:var(--ac)}
-.fb.bt.on{background:rgba(59,130,246,.15);border-color:var(--bart);color:var(--bart)}
-.fb.ct.on{background:rgba(16,185,129,.15);border-color:var(--cal);color:var(--cal)}
-.fb.vt.on{background:rgba(234,179,8,.15);border-color:var(--vta);color:var(--vta)}
-.cb{padding:5px 14px;font-size:11px;color:var(--mt);border-bottom:1px solid var(--bd)}
-.al{flex:1;overflow-y:auto}
-.al::-webkit-scrollbar{width:4px}
-.al::-webkit-scrollbar-track{background:var(--sf)}
-.al::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-.ac{padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .12s}
-.ac:hover{background:var(--sf2)}
-.ac.sel{background:rgba(249,115,22,.07);border-left:3px solid var(--ac)}
-.an{font-size:13px;font-weight:600;color:#f1f5f9;margin-bottom:2px}
-.aa{font-size:11px;color:var(--mt);margin-bottom:5px}
-.at{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-.tg{font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;display:inline-block}
-.st{color:#f59e0b;font-size:11px;letter-spacing:.3px}
+.fb{background:rgba(10,14,26,0.5);border:1px solid var(--bd2);border-radius:8px;padding:5px 10px;
+  color:var(--mt);font-size:10px;font-weight:500;cursor:pointer;transition:all .2s;
+  font-family:'Outfit',sans-serif;backdrop-filter:blur(4px)}
+.fb:hover{border-color:rgba(249,115,22,0.4);color:var(--tx);transform:translateY(-1px)}
+.fb.on{background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.4);color:var(--ac);box-shadow:0 0 12px rgba(249,115,22,0.1)}
+.fb.bt.on{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.4);color:var(--bart);box-shadow:0 0 12px rgba(59,130,246,0.1)}
+.fb.ct.on{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:var(--cal);box-shadow:0 0 12px rgba(16,185,129,0.1)}
+.fb.vt.on{background:rgba(234,179,8,.12);border-color:rgba(234,179,8,.4);color:var(--vta);box-shadow:0 0 12px rgba(234,179,8,0.1)}
+
+.cb{padding:6px 16px;font-size:11px;color:var(--mt);border-bottom:1px solid var(--bd);
+  font-family:'JetBrains Mono',monospace;letter-spacing:0.3px;background:rgba(10,14,26,0.3)}
+.al{flex:1;overflow-y:auto;scroll-behavior:smooth}
+.al::-webkit-scrollbar{width:5px}
+.al::-webkit-scrollbar-track{background:transparent}
+.al::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:10px}
+.al::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15)}
+
+.ac{padding:14px 18px;margin:6px 10px;border-radius:12px;cursor:pointer;
+  transition:all .3s cubic-bezier(0.25,0.46,0.45,0.94);
+  background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--bd);position:relative;overflow:hidden;
+  opacity:0;animation:cardIn .4s ease forwards}
+.ac::before{content:'';position:absolute;inset:0;border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);pointer-events:none}
+@keyframes cardIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.ac:hover{background:rgba(30,38,60,0.7);border-color:rgba(249,115,22,0.25);
+  transform:translateY(-2px) scale(1.005);
+  box-shadow:0 8px 32px rgba(0,0,0,0.3),0 0 20px rgba(249,115,22,0.06)}
+.ac.sel{background:rgba(249,115,22,0.06);border-color:rgba(249,115,22,0.35);
+  box-shadow:0 0 24px rgba(249,115,22,0.08);border-left:3px solid var(--ac)}
+.an{font-size:14px;font-weight:600;color:#f8fafc;margin-bottom:3px;transition:color .2s}
+.ac:hover .an{color:var(--ac2)}
+.aa{font-size:11px;color:var(--mt);margin-bottom:6px}
+.at{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:4px}
+.tg{font-size:9px;font-weight:600;padding:3px 8px;border-radius:12px;display:inline-block;
+  backdrop-filter:blur(4px);transition:all .2s}
+.tg:hover{transform:scale(1.05)}
+.price-tag{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:8px;display:inline-block;
+  background:linear-gradient(135deg,rgba(249,115,22,0.2),rgba(239,68,68,0.15));
+  color:#fb923c;border:1px solid rgba(249,115,22,0.25);box-shadow:0 0 12px rgba(249,115,22,0.08)}
+.st{color:#f59e0b;font-size:11px;letter-spacing:.3px;
+  background:linear-gradient(180deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:600}
 .rt{font-size:10px;color:var(--mt)}
-.ap{font-size:10px;color:var(--mt);margin-top:4px}
-.ap a{color:#94a3b8;text-decoration:none}
-.lk{margin-top:5px;display:flex;gap:5px}
-.lk a{font-size:9px;font-weight:600;padding:3px 7px;border-radius:4px;text-decoration:none;background:rgba(249,115,22,.12);color:var(--ac);border:1px solid rgba(249,115,22,.25);transition:background .15s}
-.lk a:hover{background:rgba(249,115,22,.25)}
+.ap{font-size:10px;color:var(--mt);margin-top:5px}
+.ap a{color:#94a3b8;text-decoration:none;transition:color .2s}
+.ap a:hover{color:var(--tx)}
+.lk{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.lk a{font-size:9px;font-weight:600;padding:4px 10px;border-radius:8px;text-decoration:none;transition:all .25s;position:relative;overflow:hidden}
+.lk a.gm{background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.2)}
+.lk a.gm:hover{background:rgba(59,130,246,0.2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.15)}
+.lk a.ws{background:rgba(249,115,22,.1);color:var(--ac);border:1px solid rgba(249,115,22,.2)}
+.lk a.ws:hover{background:rgba(249,115,22,.2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(249,115,22,0.15)}
+.lk a .arrow{display:inline-block;transition:transform .2s}
+.lk a:hover .arrow{transform:translateX(3px)}
+
 .mc{flex:1;position:relative}
 #map{width:100%;height:100%}
-.leaflet-popup-content-wrapper{background:var(--sf)!important;color:var(--tx)!important;border-radius:10px!important;border:1px solid var(--bd)!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important}
-.leaflet-popup-tip{background:var(--sf)!important}
-.leaflet-popup-content{margin:12px 14px!important;font-family:'Outfit',sans-serif!important;line-height:1.5!important}
-.pn{font-weight:600;font-size:14px;margin-bottom:3px}
-.pa{font-size:12px;color:var(--mt);margin-bottom:4px}
-.pr{font-size:12px;color:#f59e0b}
-.pp{font-size:11px;color:var(--mt);margin-top:3px}
-.pl{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;color:var(--ac);text-decoration:none}
+.leaflet-popup-content-wrapper{background:rgba(15,20,35,0.92)!important;backdrop-filter:blur(16px)!important;
+  color:var(--tx)!important;border-radius:14px!important;border:1px solid rgba(255,255,255,0.1)!important;
+  box-shadow:0 12px 48px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,0.05)!important}
+.leaflet-popup-tip{background:rgba(15,20,35,0.92)!important}
+.leaflet-popup-content{margin:14px 16px!important;font-family:'Outfit',sans-serif!important;line-height:1.6!important}
+.pn{font-weight:700;font-size:15px;margin-bottom:4px;color:#f8fafc}
+.pa{font-size:12px;color:var(--mt);margin-bottom:6px}
+.pr{font-size:12px;color:#f59e0b;font-weight:500}
+.pp{font-size:11px;color:var(--mt);margin-top:4px}
+.pl{display:inline-block;margin-top:8px;font-size:11px;font-weight:600;color:var(--ac);text-decoration:none;
+  padding:4px 10px;border-radius:6px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);transition:all .2s}
+.pl:hover{background:rgba(249,115,22,0.2)}
 .si{background:none;border:none}
-.legend{position:absolute;bottom:20px;left:20px;z-index:1000;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--mt);line-height:2}
-.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
-@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:100%;height:45vh}.mc{height:55vh}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(249,115,22,0.5)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.marker-pulse{animation:pulse 2.5s ease-out infinite}
+.legend{position:absolute;bottom:20px;left:20px;z-index:1000;
+  background:rgba(15,20,35,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;
+  font-size:11px;color:var(--mt);line-height:2.2;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;box-shadow:0 0 6px currentColor}
+@media(max-width:768px){
+  .layout{flex-direction:column}
+  .sidebar{width:100%;min-width:100%;height:50vh}
+  .mc{height:50vh}
+  .sh h1{font-size:14px}
+  .ac{margin:4px 6px;padding:12px 14px}
+}
 </style>
 </head>
 <body>
@@ -66,7 +150,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overfl
 <div class="sidebar">
 <div class="sh">
 <h1>SOUTH BAY TRANSIT APTS</h1>
-<div class="sub"><span id="tc">75</span> apartments • Leaflet + OpenStreetMap • Zero API keys</div>
+<div class="sub"><span id="tc">0</span> apartments near BART, Caltrain &amp; VTA</div>
 </div>
 <div class="filters">
 <input type="text" class="sb" id="search" placeholder="Search name, address, or city...">
@@ -74,29 +158,23 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overfl
 <div class="fr" id="tf"></div>
 <div class="fr" id="sf"></div>
 </div>
-<div class="cb" id="cb">Showing 75 of 75</div>
+<div class="cb" id="cb">Loading...</div>
 <div class="al" id="al"></div>
 </div>
 <div class="mc">
 <div id="map"></div>
 <div class="legend">
-<div><span class="legend-dot" style="background:var(--bart)"></span> BART station</div>
-<div><span class="legend-dot" style="background:var(--cal)"></span> Caltrain station</div>
-<div><span class="legend-dot" style="background:#a855f7"></span> BART + Caltrain</div>
-<div style="margin-top:4px;border-top:1px solid var(--bd);padding-top:4px">Colored dots = apartments by city</div>
+<div><span class="legend-dot" style="background:var(--bart);color:var(--bart)"></span> BART station</div>
+<div><span class="legend-dot" style="background:var(--cal);color:var(--cal)"></span> Caltrain station</div>
+<div><span class="legend-dot" style="background:#a855f7;color:#a855f7"></span> BART + Caltrain</div>
+<div><span class="legend-dot" style="background:var(--vta);color:var(--vta)"></span> VTA Light Rail</div>
+<div style="margin-top:6px;border-top:1px solid var(--bd2);padding-top:6px;font-size:10px">Colored dots = apartments by city</div>
 </div>
 </div>
 </div>
 <script>
 const D=[
-  {n:"3512 Vision Common",a:"3512 Vision Common",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.498889,ln:-121.944586,id:"",w:null,pr:null},
-  {n:"3692 Intelligence Common",a:"3692 Intelligence Common",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.499207,ln:-121.945761,id:"",w:null,pr:null},
-  {n:"3693 Vision common",a:"3693 Vision Common",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.498933,ln:-121.94558,id:"",w:null,pr:null},
-  {n:"3698 Vision Common",a:"3689 Vision Common",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.498467,ln:-121.94594,id:"",w:null,pr:null},
-  {n:"3712 Intelligence Common",a:"3712 Intelligence Common",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.498979,ln:-121.946291,id:"",w:null,pr:null},
-  {n:"3713 Vision Common",a:"3713 Vision Common",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.498757,ln:-121.94613,id:"",w:null,pr:null},
-  {n:"3873 Quantum Drive",a:"3873 Quantum Drive",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.498046,ln:-121.947014,id:"",w:null,pr:null},
-  {n:"45188 Ambition St",a:"45188 Ambition Street",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.498885,ln:-121.946764,id:"",w:null,pr:null},
+  {n:"Apartments",a:"",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.562235,ln:-121.963414,id:"",w:null,pr:null},
   {n:"Archstone Fremont Center",a:"39410 Civic Center Dr",c:"Fremont",r:4.1,v:184,p:"+1 510-792-1299",t:"BART",lt:37.5538,ln:-121.9734,id:"ChIJtcQF-Y3Aj4ARaWF2FI4raZE",w:null,pr:null},
   {n:"Avalon Fremont",a:"39939 Stevenson Common",c:"Fremont",r:4.2,v:356,p:"+1 510-279-0325",t:"BART",lt:37.5432,ln:-121.972,id:"ChIJv5q-m7_Aj4ARSCowWePSYlU",w:null,pr:null},
   {n:"Aya Apartments",a:"45060 Synergy Street",c:"Fremont",r:0,v:0,p:null,t:"BART",lt:37.50214,ln:-121.942169,id:"",w:null,pr:null},
@@ -124,12 +202,10 @@ const D=[
   {n:"Bart Springs Apartments",a:"29033 Dixon St",c:"Hayward",r:4.1,v:8,p:"+1 510-537-1957",t:"BART",lt:37.6326,ln:-122.0553,id:"ChIJ2ZeDMkKUj4ARj4yJ_MWrLdk",w:null,pr:null},
   {n:"Bentley Place",a:"22525 3rd St",c:"Hayward",r:4.8,v:4,p:"+1 510-390-7321",t:"BART",lt:37.6772,ln:-122.0787,id:"ChIJdzQCN9eTj4ARvEhkBSMPsKE",w:null,pr:null},
   {n:"Downtown Hayward Senior Apartments",a:"808 A Street",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.672865,ln:-122.086154,id:"",w:null,pr:null},
+  {n:"Greenleaf Apartments",a:"27495 Manon Avenue",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.63594,ln:-122.070233,id:"",w:null,pr:null},
   {n:"Legacy at Hayward",a:"28168 Mission Blvd",c:"Hayward",r:4.3,v:68,p:"+1 833-918-3530",t:"BART",lt:37.6383,ln:-122.0558,id:"ChIJoyEvHpCVj4ARlnZGasfcZmM",w:null,pr:null},
-  {n:"Solstice Apartments 1-8",a:"27467 Manon Avenue",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.636517,ln:-122.070068,id:"",w:null,pr:null},
-  {n:"Solstice Apartments 17-24",a:"27467 Manon Avenue",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.636285,ln:-122.070495,id:"",w:null,pr:null},
-  {n:"Solstice Apartments 25-32",a:"27467 Manon Avenue",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.636204,ln:-122.0707,id:"",w:null,pr:null},
-  {n:"Solstice Apartments 33-36",a:"27467 Manon Avenue",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.636098,ln:-122.070855,id:"",w:null,pr:null},
-  {n:"Solstice Apartments 9-16",a:"27467 Manon Avenue",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.636384,ln:-122.070306,id:"",w:null,pr:null},
+  {n:"Lincoln Landing Building",a:"22271 Foothill Boulevard",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.678256,ln:-122.085087,id:"",w:"https://www.lincolnlandingapartments.com",pr:null},
+  {n:"Solstice Apartments",a:"27467 Manon Avenue",c:"Hayward",r:0,v:0,p:null,t:"BART",lt:37.636298,ln:-122.070485,id:"",w:null,pr:null},
   {n:"Summerwood",a:"21701 Foothill Blvd",c:"Hayward",r:3.7,v:55,p:"+1 833-202-9993",t:"BART",lt:37.6815,ln:-122.0892,id:"ChIJAzM9WX-Rj4ARsq5NCSk_IgU",w:null,pr:null},
   {n:"The Mix at SoHay",a:"29213 Mission Blvd",c:"Hayward",r:4.3,v:29,p:"+1 510-974-7854",t:"BART",lt:37.6325,ln:-122.0507,id:"ChIJF9eite-Vj4ARs23D3jX93iI",w:null,pr:null},
   {n:"Atherton Park Forest",a:"1670 El Camino Real",c:"Menlo Park",r:4.5,v:11,p:"+1 650-325-2001",t:"Caltrain",lt:37.4588,ln:-122.1921,id:"ChIJRbYkqqCkj4AR_jag5KijL2E",w:null,pr:null},
@@ -141,9 +217,11 @@ const D=[
   {n:"Cerano Apartments",a:"Murphy Ranch Road",c:"Milpitas",r:0,v:0,p:null,t:"VTA",lt:37.417825,ln:-121.92834,id:"",w:null,pr:null},
   {n:"Eleanor",a:"312 Gates Dr",c:"Milpitas",r:3.8,v:391,p:"+1 844-997-4491",t:"BART",lt:37.4094,ln:-121.8965,id:"ChIJ8W9ZPlPPj4ARHWsxqCyiMpM",w:null,pr:null},
   {n:"Essex Apex Apartments",a:"",c:"Milpitas",r:0,v:0,p:null,t:"BART/VTA",lt:37.414235,ln:-121.903715,id:"",w:null,pr:null},
+  {n:"Gideon",a:"",c:"Milpitas",r:0,v:0,p:null,t:"BART/VTA",lt:37.410635,ln:-121.898966,id:"",w:"https://livethefields.com/gideon/",pr:null},
   {n:"Gideon at The Fields",a:"150 Market St",c:"Milpitas",r:4.8,v:100,p:"+1 408-837-7991",t:"BART",lt:37.4108,ln:-121.8994,id:"ChIJ3UrlrtXPj4ARybp6b0bGlho",w:null,pr:null},
   {n:"Graham at The Fields",a:"1455 McCandless Dr",c:"Milpitas",r:4.6,v:159,p:"+1 408-539-5684",t:"BART",lt:37.4107,ln:-121.8999,id:"ChIJRwgNxhjPj4ARVki4lRGOdnM",w:null,pr:null},
   {n:"ILARA Apartments",a:"1201 S Main St",c:"Milpitas",r:3.6,v:201,p:"+1 408-935-9300",t:"BART",lt:37.4123,ln:-121.9023,id:"ChIJ7U1pqErJj4AR1oHytisRxLY",w:null,pr:null},
+  {n:"Lantana",a:"720 Montague Expressway",c:"Milpitas",r:0,v:0,p:null,t:"BART/VTA",lt:37.410983,ln:-121.888872,id:"",w:null,pr:null},
   {n:"Lantana at Milpitas Station",a:"1675 S Milpitas Blvd",c:"Milpitas",r:4.7,v:213,p:"+1 844-208-6785",t:"BART",lt:37.4105,ln:-121.8887,id:"ChIJQ39f8S3Pj4ARaTZp4nE8bTM",w:null,pr:null},
   {n:"Mill Creek Apartments",a:"440 Dixon Landing Rd",c:"Milpitas",r:4.2,v:470,p:"+1 408-946-2955",t:"BART",lt:37.4543,ln:-121.9189,id:"ChIJUVqzULvIj4ARjq_RfhRJXcs",w:null,pr:null},
   {n:"Milpa Village Townhomes",a:"260 S Main St",c:"Milpitas",r:4.5,v:16,p:"+1 408-655-8219",t:"BART",lt:37.4269,ln:-121.9057,id:"ChIJq6qWlivJj4ARv4LIdSHJl1g",w:null,pr:null},
@@ -151,11 +229,12 @@ const D=[
   {n:"100 Moffett",a:"100 Moffett Blvd",c:"Mountain View",r:4.2,v:171,p:"+1 650-376-8928",t:"Caltrain",lt:37.3962,ln:-122.0778,id:"ChIJUdCocTa3j4ARbkM5oF4OCVg",w:null,pr:null},
   {n:"248 Pamela",a:"248 Pamela Drive",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.380431,ln:-122.07609,id:"",w:"https://www.248pamela.com/",pr:null},
   {n:"599 Castro",a:"560 Hope St",c:"Mountain View",r:4.5,v:24,p:"+1 844-346-1361",t:"Caltrain",lt:37.3886,ln:-122.081,id:"ChIJvxRMW2O3j4ARQQwK03m0gN4",w:null,pr:null},
-  {n:"A Building",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.404195,ln:-122.102769,id:"",w:null,pr:null},
   {n:"Anton Ladera",a:"398 Ortega Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.400859,ln:-122.104922,id:"",w:"https://www.antonladera.com/",pr:null},
   {n:"Atrium Court Apartments",a:"1990 Latham Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396224,ln:-122.098268,id:"",w:null,pr:null},
+  {n:"Avalon",a:"1911 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396678,ln:-122.094739,id:"",w:null,pr:null},
   {n:"Avalon Mountain View",a:"1600 Villa St",c:"Mountain View",r:4.7,v:233,p:"+1 650-528-2128",t:"Caltrain",lt:37.3976,ln:-122.0866,id:"ChIJfYitT7Swj4ARqlGv4vl-YYc",w:null,pr:null},
   {n:"Avalon Towers",a:"2400 W El Camino Real",c:"Mountain View",r:4.6,v:217,p:"+1 650-528-2130",t:"Caltrain",lt:37.3992,ln:-122.1071,id:"ChIJm6QDA5iwj4ARCZYf8k6JiOc",w:null,pr:null},
+  {n:"Avant",a:"4041 El Camino Way",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.415812,ln:-122.127,id:"",w:null,pr:null},
   {n:"Avelle Apartments",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.410087,ln:-122.077337,id:"",w:"https://liveavelle.com/",pr:null},
   {n:"Bel Aire Apartments",a:"1941 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.397134,ln:-122.096258,id:"",w:null,pr:null},
   {n:"California Oaks",a:"2005 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.397387,ln:-122.097333,id:"",w:null,pr:null},
@@ -163,9 +242,11 @@ const D=[
   {n:"Camino Palms Apartments",a:"657 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.393471,ln:-122.095445,id:"",w:null,pr:null},
   {n:"Case Del Rey",a:"2035 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.398081,ln:-122.098926,id:"",w:null,pr:null},
   {n:"Chiquita Apartments",a:"365 Chiquita Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.395787,ln:-122.090207,id:"",w:null,pr:null},
+  {n:"Colonnade",a:"4750 El Camino Real",c:"Mountain View",r:0,v:0,p:"+1-650-559-8500",t:"Caltrain",lt:37.399453,ln:-122.111877,id:"",w:"https://colonnadeapartments.stanford.edu/",pr:null},
+  {n:"Crown",a:"2010 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.398367,ln:-122.097208,id:"",w:null,pr:null},
   {n:"Del Medio Manor",a:"141 Del Medio Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.408674,ln:-122.111026,id:"",w:null,pr:null},
+  {n:"Domizile",a:"550 Ortega Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.398937,ln:-122.106264,id:"",w:null,pr:null},
   {n:"Dry Creek Apartments",a:"2272 Latham Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.39899,ln:-122.104315,id:"",w:null,pr:null},
-  {n:"E Building",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.403925,ln:-122.103365,id:"",w:null,pr:null},
   {n:"Eagle Park Apartments",a:"1701 West El Camino Real",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.390272,ln:-122.093881,id:"",w:"https://altahousing.org/properties/eagle-park/",pr:null},
   {n:"El Portal Apartments",a:"2065 California Street",c:"Mountain View",r:0,v:0,p:"+1 650-964-3950",t:"Caltrain",lt:37.398344,ln:-122.099501,id:"",w:"https://www.elportalmv.com/",pr:null},
   {n:"Forest Glen",a:"1 Forest Glen St",c:"Mountain View",r:4.7,v:13,p:"+1 650-564-2220",t:"Caltrain",lt:37.4061,ln:-122.0906,id:"ChIJCc8qYK6wj4ARXeNwV8xvZoc",w:null,pr:null},
@@ -178,19 +259,8 @@ const D=[
   {n:"Greenwood Apartments",a:"1797 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.395571,ln:-122.092611,id:"",w:null,pr:null},
   {n:"Hastings Square West",a:"400A Ortega Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399589,ln:-122.105647,id:"",w:null,pr:null},
   {n:"Higdon House",a:"323 Higdon Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396605,ln:-122.091203,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 1",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399174,ln:-122.093325,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 10",a:"222 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399779,ln:-122.093266,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 11",a:"222 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399527,ln:-122.093097,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 12",a:"222 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399835,ln:-122.094009,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 2",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.398995,ln:-122.093434,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 3",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399531,ln:-122.094228,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 4",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399397,ln:-122.094454,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 5",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399692,ln:-122.095228,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 6",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.400317,ln:-122.094955,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 7",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.400197,ln:-122.094474,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 8",a:"222 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399545,ln:-122.093615,id:"",w:null,pr:null},
-  {n:"Highland Gardens Building 9",a:"222 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399625,ln:-122.093376,id:"",w:null,pr:null},
-  {n:"J Building",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.404632,ln:-122.10367,id:"",w:null,pr:null},
+  {n:"Highland Gardens",a:"234 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399635,ln:-122.093955,id:"",w:null,pr:null},
+  {n:"King",a:"2000 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.39816,ln:-122.096754,id:"",w:null,pr:null},
   {n:"Ladera Apartments",a:"398 Ortega Ave",c:"Mountain View",r:4.8,v:46,p:"+1 833-495-1492",t:"Caltrain",lt:37.4008,ln:-122.1047,id:"ChIJhw_aSpyxj4ARJmCmH8RDFys",w:null,pr:null},
   {n:"Larkspur Woods",a:"1957 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.397305,ln:-122.09668,id:"",w:null,pr:null},
   {n:"Latham Gardens",a:"2030 Latham Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396338,ln:-122.099454,id:"",w:null,pr:null},
@@ -198,13 +268,14 @@ const D=[
   {n:"Loma Vista",a:"2017 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.39761,ln:-122.09785,id:"",w:null,pr:null},
   {n:"Madera Apartments",a:"455 W Evelyn Ave",c:"Mountain View",r:4.5,v:182,p:"+1 650-241-2205",t:"Caltrain",lt:37.3923,ln:-122.0739,id:"ChIJXwFo5jC3j4ARp0o5eyyqvhE",w:null,pr:null},
   {n:"Maplewood Apartments",a:"1885",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396034,ln:-122.093811,id:"",w:null,pr:null},
+  {n:"Mari-Court",a:"586 Mariposa Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.39276,ln:-122.091168,id:"",w:null,pr:null},
   {n:"Mariposa Arms",a:"551 Mariposa Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.392712,ln:-122.090337,id:"",w:null,pr:null},
   {n:"Monroe Villa",a:"565 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.394665,ln:-122.094938,id:"",w:null,pr:null},
   {n:"Montclair Dauphine",a:"426 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396336,ln:-122.09491,id:"",w:null,pr:null},
+  {n:"Monticello",a:"1930 Mount Vernon Court",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396321,ln:-122.09561,id:"",w:null,pr:null},
+  {n:"Montpelier",a:"1935 Mount Vernon Court",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.395907,ln:-122.095865,id:"",w:null,pr:null},
   {n:"Montrose Apartments",a:"1720 W El Camino Real",c:"Mountain View",r:4.4,v:133,p:"+1 650-318-5554",t:"Caltrain",lt:37.391,ln:-122.0938,id:"ChIJewpFXsiwj4ARYmrX0OzOiLw",w:null,pr:null},
   {n:"Mount Vernon",a:"1910 Mount Vernon Court",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396083,ln:-122.095037,id:"",w:null,pr:null},
-  {n:"Mountain View Senior Citizens Center",a:"266 Escuela Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.398837,ln:-122.094245,id:"",w:null,pr:null},
-  {n:"N Building",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.404185,ln:-122.104363,id:"",w:null,pr:null},
   {n:"Palo Alto Place Apartments",a:"565 Arastradero Road",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.408641,ln:-122.1241,id:"",w:null,pr:null},
   {n:"Palo Alto Plaza",a:"541 Del Medio Ave",c:"Mountain View",r:4.6,v:97,p:"+1 650-935-4362",t:"Caltrain",lt:37.4041,ln:-122.1161,id:"ChIJBfV9BZ2wj4ARKG_SqKQurcU",w:null,pr:null},
   {n:"Parc Crossings Condominiums",a:"2255 Showers Drive",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.407261,ln:-122.108198,id:"",w:"http://www.parccrossings.com/",pr:null},
@@ -213,14 +284,10 @@ const D=[
   {n:"Redwood Villa Retirement Residence",a:"1981 Montecito Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.405247,ln:-122.093186,id:"",w:null,pr:null},
   {n:"Regency at Mountain View",a:"333 Escuela Ave",c:"Mountain View",r:4.0,v:101,p:"+1 650-729-1458",t:"Caltrain",lt:37.3974,ln:-122.0931,id:"ChIJ0WDlOrewj4ARt7QnJKHL0Gw",w:null,pr:null},
   {n:"San Antonio Place",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.407766,ln:-122.110163,id:"",w:"https://charitieshousing.org/san-antonio-place/",pr:null},
+  {n:"Sharron",a:"2050 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.399026,ln:-122.09897,id:"",w:null,pr:null},
   {n:"Sierra Vista Apartments",a:"917 Sierra Vista Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.417578,ln:-122.089415,id:"",w:"https://sierravista.eprodesse.com/",pr:null},
-  {n:"Stanford Gate A",a:"183 Del Medio Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.407878,ln:-122.111896,id:"",w:null,pr:null},
-  {n:"Stanford Gate B",a:"181 Del Medio Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.4083,ln:-122.111473,id:"",w:null,pr:null},
-  {n:"Sunshine Gardens",a:"132-150 W Dana St",c:"Mountain View",r:4.5,v:28,p:"+1 650-968-5695",t:"Caltrain",lt:37.3899,ln:-122.0715,id:"ChIJqSAuTiW3j4ARbVOiHZ4_7HA",w:null,pr:null},
-  {n:"Sunshine Gardens 132",a:"132 West Dana Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.389449,ln:-122.071628,id:"",w:null,pr:null},
-  {n:"Sunshine Gardens 134",a:"134 West Dana Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.389584,ln:-122.071515,id:"",w:null,pr:null},
-  {n:"Sunshine Gardens 136",a:"136 West Dana Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.389738,ln:-122.071418,id:"",w:null,pr:null},
-  {n:"Sunshine Gardens 138",a:"138 West Dana Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.389876,ln:-122.071327,id:"",w:null,pr:null},
+  {n:"Stanford Gate",a:"183 Del Medio Avenue",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.408089,ln:-122.111684,id:"",w:null,pr:null},
+  {n:"Sunshine Gardens",a:"132-150 W Dana St",c:"Mountain View",r:4.5,v:28,p:"+1 650-968-5695",t:"Caltrain",lt:37.389709,ln:-122.071478,id:"ChIJqSAuTiW3j4ARbVOiHZ4_7HA",w:null,pr:null},
   {n:"The Californian Apartments",a:"2330 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.402481,ln:-122.105015,id:"",w:null,pr:null},
   {n:"The Charleston",a:"1940 Mount Vernon Court",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.396508,ln:-122.096195,id:"",w:null,pr:null},
   {n:"The Dean",a:"458 San Antonio Road",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.404653,ln:-122.112297,id:"",w:null,pr:null},
@@ -236,10 +303,9 @@ const D=[
   {n:"The Shadows",a:"750 N Shoreline Blvd",c:"Mountain View",r:4.1,v:91,p:"+1 650-265-1766",t:"Caltrain",lt:37.4054,ln:-122.0785,id:"ChIJP6ha0U23j4ARRsq8lqbIW9g",w:null,pr:null},
   {n:"The Tillery",a:"1720 Villa St",c:"Mountain View",r:4.6,v:62,p:"+1 833-964-4210",t:"Caltrain",lt:37.3983,ln:-122.0898,id:"ChIJNzJag-Gxj4AR04FrSwxKrhY",w:null,pr:null},
   {n:"Union Plaza Apartments",a:"535 Arastradero Road",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.408986,ln:-122.123464,id:"",w:null,pr:null},
-  {n:"W Building",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.405156,ln:-122.104857,id:"",w:null,pr:null},
+  {n:"Willow",a:"1940 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.397644,ln:-122.095388,id:"",w:null,pr:null},
   {n:"Windsor Apartments",a:"1900 California Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.397231,ln:-122.09445,id:"",w:null,pr:null},
   {n:"Woodside Place",a:"2033 Latham Street",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.395965,ln:-122.099877,id:"",w:null,pr:null},
-  {n:"X Building",a:"",c:"Mountain View",r:0,v:0,p:null,t:"Caltrain",lt:37.404239,ln:-122.104756,id:"",w:null,pr:null},
   {n:"eaves Creekside",a:"151 Calderon Ave",c:"Mountain View",r:4.4,v:222,p:"+1 650-528-2129",t:"Caltrain",lt:37.391,ln:-122.0717,id:"ChIJO7afMCW3j4AR9E2cTuZRRvw",w:null,pr:null},
   {n:"eaves at Middlefield",a:"555 W Middlefield Rd",c:"Mountain View",r:4.5,v:424,p:"+1 650-528-2127",t:"Caltrain",lt:37.3986,ln:-122.0704,id:"ChIJTSeIGDi3j4ARZuD_lkzu-dI",w:null,pr:null},
   {n:"430 Forest Apartments",a:"430 Forest Ave",c:"Palo Alto",r:5.0,v:2,p:"+1 650-380-3413",t:"Caltrain",lt:37.4459,ln:-122.1574,id:"ChIJgRBWhLm7j4ARlFaoffPqJR0",w:null,pr:null},
@@ -256,11 +322,10 @@ const D=[
   {n:"Hulme Midrise",a:"87 Hulme Court",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.427797,ln:-122.153955,id:"",w:null,pr:null},
   {n:"Live Oak Apartments",a:"722",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.450724,ln:-122.182326,id:"",w:null,pr:null},
   {n:"Lytton Arbor",a:"656 Lytton Avenue",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.450841,ln:-122.158214,id:"",w:null,pr:null},
+  {n:"Mirrielees",a:"",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.423436,ln:-122.159708,id:"",w:null,pr:null},
   {n:"Moldaw Residences",a:"899 East Charleston Road",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.422762,ln:-122.10281,id:"",w:null,pr:null},
   {n:"Palo Alto Place",a:"565 Arastradero Rd",c:"Palo Alto",r:4.2,v:21,p:"+1 833-715-3297",t:"Caltrain",lt:37.4086,ln:-122.1241,id:"ChIJt-nnEHy6j4ARSdeLV-3WIwQ",w:null,pr:null},
   {n:"Quillen Highrise",a:"119 Quillen Court",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.425894,ln:-122.158777,id:"",w:null,pr:null},
-  {n:"Ronald McDonald House",a:"520 Sand Hill Road",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.442773,ln:-122.174566,id:"",w:null,pr:null},
-  {n:"Studio 2",a:"729 Campus Drive",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.425006,ln:-122.159838,id:"",w:null,pr:null},
   {n:"The Marc",a:"501-#8405 Cowper Street",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.447234,ln:-122.156815,id:"",w:null,pr:null},
   {n:"The Palomino",a:"2755 El Camino Real",c:"Palo Alto",r:4.9,v:25,p:"+1 650-456-7563",t:"Caltrain",lt:37.4235,ln:-122.1423,id:"ChIJ_28CRe66j4ARMOJCmnr-LV4",w:null,pr:null},
   {n:"Toyon Hall",a:"455 Arguello Way",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.426038,ln:-122.163568,id:"",w:null,pr:null},
@@ -268,43 +333,40 @@ const D=[
   {n:"Vi at Palo Alto",a:"620 Sand Hill Road",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.440412,ln:-122.176091,id:"",w:null,pr:null},
   {n:"Webster House",a:"437 Webster Street",c:"Palo Alto",r:0,v:0,p:"+1 650 327 4333",t:"Caltrain",lt:37.450042,ln:-122.158233,id:"",w:"https://covia.org/webster-house/",pr:null},
   {n:"Wellsbury Apartment Homes",a:"3085 Middlefield Road",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.430779,ln:-122.124179,id:"",w:null,pr:null},
-  {n:"Willis Lounge",a:"219 Ayrshire Farm Lane",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.421232,ln:-122.15895,id:"",w:null,pr:null},
   {n:"Woodland Arms",a:"1717 Woodland Avenue",c:"Palo Alto",r:0,v:0,p:null,t:"Caltrain",lt:37.455203,ln:-122.138403,id:"",w:null,pr:null},
   {n:"Almaden Lake Village",a:"1045 Coleman Rd",c:"S. San Jose",r:3.9,v:110,p:"+1 669-338-1018",t:"VTA",lt:37.2441,ln:-121.8695,id:"ChIJk-rse2QxjoARbWw7uLz_6ps",w:null,pr:null},
   {n:"DUO Apartments",a:"6670 Emergent Way",c:"S. San Jose",r:4.3,v:171,p:"+1 408-224-8640",t:"VTA",lt:37.2407,ln:-121.7888,id:"ChIJsYuj7YovjoARpMjmixj6jTc",w:null,pr:null},
   {n:"101 San Fernando",a:"101 East San Fernando Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.336251,ln:-121.887065,id:"",w:null,pr:null},
   {n:"188 West Saint James",a:"188 West Saint James Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.337397,ln:-121.895327,id:"",w:null,pr:null},
   {n:"27 North Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.339098,ln:-121.886154,id:"",w:"https://27north.com/",pr:"$975/mo"},
-  {n:"360 Residences",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.330185,ln:-121.886941,id:"",w:"http://www.360residences.com/",pr:"$2,309/mo"},
+  {n:"360 Residences",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.330185,ln:-121.886941,id:"",w:"http://www.360residences.com/",pr:"$2,329/mo"},
   {n:"45 North",a:"45 North 8th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.340318,ln:-121.884003,id:"",w:null,pr:null},
   {n:"787 The Alameda",a:"787 The Alameda",c:"San Jose",r:4.2,v:99,p:"+1 844-379-4035",t:"Caltrain/BART",lt:37.332,ln:-121.9054,id:"ChIJl7Ux917Lj4ARJ2o0ORBUDWA",w:null,pr:null},
   {n:"808 West Apartments",a:"808 West San Carlos Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.322799,ln:-121.905271,id:"",w:null,pr:null},
-  {n:"88 North Jackson Ave",a:"88 North Jackson Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART",lt:37.361357,ln:-121.845255,id:"",w:null,pr:null},
   {n:"Adriatic Apartments",a:"2656 Newhall Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain",lt:37.337376,ln:-121.952772,id:"",w:null,pr:null},
-  {n:"Alpha Epsilon Pi",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.337938,ln:-121.878584,id:"",w:null,pr:null},
   {n:"Archer Studios",a:"98 Archer Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain",lt:37.365464,ln:-121.910716,id:"",w:null,pr:null},
   {n:"Auburn Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.34175,ln:-121.892261,id:"",w:null,pr:null},
-  {n:"Avalon Morrison Park",a:"899 Morrison Park Dr",c:"San Jose",r:4.2,v:241,p:"+1 408-352-6789",t:"Caltrain",lt:37.3343,ln:-121.9084,id:"ChIJy7U7W2fLj4ARyY6L2Wbm2UY",w:null,pr:null},
-  {n:"Avalon Morrison Park - Building 1",a:"367 Stockton Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.334447,ln:-121.90706,id:"",w:null,pr:null},
+  {n:"Avalon Morrison Park",a:"899 Morrison Park Dr",c:"San Jose",r:4.2,v:241,p:"+1 408-352-6789",t:"Caltrain",lt:37.334373,ln:-121.90773,id:"ChIJy7U7W2fLj4ARyY6L2Wbm2UY",w:null,pr:null},
   {n:"Avalon at Cahill Park",a:"754 The Alameda",c:"San Jose",r:4.4,v:273,p:"+1 408-216-8945",t:"Caltrain/BART",lt:37.3309,ln:-121.9053,id:"ChIJ0wyO1VjLj4ARroIvJs7Lu2E",w:null,pr:null},
   {n:"Avalon on the Alameda",a:"1300 The Alameda",c:"San Jose",r:4.3,v:269,p:"+1 408-216-8947",t:"Caltrain",lt:37.3325,ln:-121.9124,id:"ChIJvZYYkWfLj4ARKvzEuDKxlWg",w:null,pr:null},
+  {n:"Axis",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.334761,ln:-121.895728,id:"",w:null,pr:null},
   {n:"Barcelona Apartments",a:"15 Hawthorne Way",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.344692,ln:-121.897358,id:"",w:null,pr:null},
   {n:"Beatrice Building",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.339848,ln:-121.893593,id:"",w:null,pr:null},
   {n:"Belovida at Newbury Park",a:"1777 Newbury Park Drive",c:"San Jose",r:0,v:0,p:null,t:"BART/VTA",lt:37.366586,ln:-121.867305,id:"",w:null,pr:null},
   {n:"Blossom Valley Senior Apartments",a:"339 Blossom Hill Road",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.251894,ln:-121.827846,id:"",w:null,pr:null},
   {n:"Casa de Novo",a:"2188 The Alameda",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain",lt:37.344638,ln:-121.931259,id:"",w:null,pr:null},
   {n:"Casa del Pueblo",a:"200 South Market Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.332001,ln:-121.888418,id:"",w:null,pr:null},
+  {n:"Centerra",a:"77 North Almaden Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.335915,ln:-121.895321,id:"",w:null,pr:null},
   {n:"City Heights",a:"175 West Saint James Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.338081,ln:-121.895648,id:"",w:"http://sanjosecityheights.com/",pr:null},
-  {n:"Commercial Building",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.336692,ln:-121.890704,id:"",w:null,pr:null},
-  {n:"Court 4",a:"190 Ryland Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.340793,ln:-121.898114,id:"",w:null,pr:null},
+  {n:"Colonnade",a:"201 South 4th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.333194,ln:-121.884892,id:"",w:null,pr:null},
   {n:"Curtner Studios",a:"701 Curtner Avenue",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.293202,ln:-121.875383,id:"",w:null,pr:null},
   {n:"DeLaVe Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.331527,ln:-121.873219,id:"",w:null,pr:null},
   {n:"Delmas Park",a:"350 Barack Obama Boulevard",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.324537,ln:-121.89972,id:"",w:null,pr:null},
   {n:"Diridon West",a:"717 W Julian St",c:"San Jose",r:4.6,v:402,p:"+1 669-222-8085",t:"Caltrain/BART",lt:37.3338,ln:-121.9065,id:"ChIJlSjB6HrLj4ARvhQBf3J17-E",w:null,pr:null},
-  {n:"Domain 3",a:"",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.414609,ln:-121.955198,id:"",w:null,pr:null},
   {n:"Donner Lofts",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.339075,ln:-121.888038,id:"",w:null,pr:null},
   {n:"El Dorado Apartments",a:"279 East San Fernando Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.337356,ln:-121.883408,id:"",w:null,pr:null},
   {n:"El Paseo Court",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.335529,ln:-121.889637,id:"",w:null,pr:null},
+  {n:"Exhibit",a:"535 North 7th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.348179,ln:-121.891252,id:"",w:"https://www.exhibitjtown.com/",pr:"$1,000/mo"},
   {n:"Fama Apartments",a:"121 North 8th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.341316,ln:-121.884662,id:"",w:null,pr:null},
   {n:"Family Supportive Housing",a:"692 North King Road",c:"San Jose",r:0,v:0,p:null,t:"BART/VTA",lt:37.366223,ln:-121.868349,id:"",w:null,pr:null},
   {n:"Foundry Commons",a:"868 S 5th St",c:"San Jose",r:4.1,v:195,p:"+1 833-828-2035",t:"VTA",lt:37.3256,ln:-121.8768,id:"ChIJB5D34crMj4ARMOMSC3zJgB0",w:null,pr:null},
@@ -323,13 +385,14 @@ const D=[
   {n:"Legato’s Apartments",a:"140 East Santa Clara Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.337283,ln:-121.887616,id:"",w:null,pr:null},
   {n:"Lenzen Square",a:"790 Lenzen Ave",c:"San Jose",r:4.6,v:5,p:"+1 408-286-9595",t:"Caltrain",lt:37.3356,ln:-121.9099,id:"ChIJXYz9-GbLj4ARH8-EY13ZW7w",w:null,pr:null},
   {n:"Mabuhay Court",a:"270 East Empire Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.347195,ln:-121.89079,id:"",w:"https://bridgehousing.com/properties/santa-clara-san-jose-mabuhay/",pr:null},
+  {n:"Marquis",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/VTA",lt:37.356087,ln:-121.893277,id:"",w:"http://www.liveatmarquis.com/",pr:"$2,417/mo"},
   {n:"Masson Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.33512,ln:-121.893503,id:"",w:null,pr:null},
   {n:"Meridian at Midtown Apartments",a:"1432 West San Carlos Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.322956,ln:-121.914639,id:"",w:"http://www.meridianatmidtown.com/",pr:"$2,317/mo"},
   {n:"Merrill Gardens at Willow Glen",a:"1420 Curci Drive",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.307572,ln:-121.914327,id:"",w:null,pr:null},
   {n:"Met North",a:"2122 Monterey Road",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.305899,ln:-121.862866,id:"",w:null,pr:null},
   {n:"Metropolitan Court Apartments",a:"390 North 2nd Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.342884,ln:-121.89375,id:"",w:null,pr:null},
-  {n:"Miro East Tower",a:"181 East Santa Clara Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.338319,ln:-121.88687,id:"",w:null,pr:null},
-  {n:"Miro West Tower",a:"181 East Santa Clara Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.338277,ln:-121.887463,id:"",w:null,pr:null},
+  {n:"Mio",a:"688 North 7th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.351753,ln:-121.893176,id:"",w:"https://essexapartmenthomes.com/apartments/san-jose/mio",pr:"$2,727/mo"},
+  {n:"Miro",a:"181 East Santa Clara Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.338298,ln:-121.887167,id:"",w:null,pr:null},
   {n:"Mission Court Apartments",a:"460 North 1st Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.344021,ln:-121.896041,id:"",w:null,pr:null},
   {n:"Mission Terrace",a:"1883 Agnew Road",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.395671,ln:-121.958238,id:"",w:null,pr:null},
   {n:"Modera San Pedro Square",a:"28 N Almaden Ave",c:"San Jose",r:4.2,v:113,p:"+1 650-963-1330",t:"Caltrain",lt:37.3352,ln:-121.8941,id:"ChIJG0MA9pTNj4ARgbp_yCuK7TU",w:null,pr:null},
@@ -344,43 +407,33 @@ const D=[
   {n:"Paseo Plaza",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.334098,ln:-121.885426,id:"",w:null,pr:null},
   {n:"Paseo Villas",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.335134,ln:-121.886247,id:"",w:null,pr:null},
   {n:"Peachtree Apts",a:"1962 Bellomy Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain",lt:37.340061,ln:-121.954242,id:"",w:null,pr:null},
-  {n:"Play Area",a:"",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.395992,ln:-121.958122,id:"",w:null,pr:null},
   {n:"Plaza Mari Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.328575,ln:-121.881654,id:"",w:null,pr:null},
   {n:"Presidio El Camino",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain",lt:37.352336,ln:-121.9524,id:"",w:"http://www.presidioelcamino.com/",pr:null},
   {n:"RR Apartments",a:"556 South 11th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.332912,ln:-121.873449,id:"",w:null,pr:null},
   {n:"Redwood Senior Apartments",a:"814 Saint Elizabeth Drive",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.309855,ln:-121.914937,id:"",w:"https://www.redwoodseniors.com/",pr:null},
   {n:"Renascent Place",a:"2450 Senter Road",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.306981,ln:-121.845753,id:"",w:null,pr:null},
-  {n:"Residential Lounge/Fitness Center",a:"",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.41487,ln:-121.954663,id:"",w:null,pr:null},
   {n:"Saint Anna Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.326989,ln:-121.882625,id:"",w:null,pr:null},
-  {n:"Security Building",a:"84 South 1st Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.334803,ln:-121.889139,id:"",w:null,pr:null},
-  {n:"Seneca Family of Agencies",a:"485 North 1st Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.344305,ln:-121.897144,id:"",w:null,pr:null},
   {n:"Shanti Apartments",a:"250 North 3rd Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.340908,ln:-121.890745,id:"",w:null,pr:null},
   {n:"Shiraz Senior",a:"1295 McLaughlin Avenue",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.329785,ln:-121.852994,id:"",w:null,pr:null},
   {n:"Siena Court",a:"516 Martha Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.32753,ln:-121.86907,id:"",w:null,pr:null},
   {n:"Silver Apartment Homes",a:"333 Sunol Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.321608,ln:-121.906628,id:"",w:null,pr:null},
   {n:"Solaire Apartments",a:"427 Auzerais Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.32604,ln:-121.895266,id:"",w:null,pr:null},
   {n:"Sonnet Hill",a:"429 Meridian Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.31987,ln:-121.914251,id:"",w:"https://sonnethill.com/",pr:"$3,475/mo"},
+  {n:"Sparq",a:"5 East Reed Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.327573,ln:-121.883732,id:"",w:null,pr:null},
+  {n:"Sparta505",a:"505 East Santa Clara Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.341715,ln:-121.879879,id:"",w:"https://sparta505.com/",pr:null},
   {n:"Spartan Manor",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.332799,ln:-121.875645,id:"",w:null,pr:null},
   {n:"State House Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.333455,ln:-121.873834,id:"",w:null,pr:null},
   {n:"Summer Breeze Apartments",a:"200 Lewis Road",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.292193,ln:-121.844299,id:"",w:null,pr:null},
   {n:"Sunset Square",a:"2080 Alum Rock Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART",lt:37.356103,ln:-121.847331,id:"",w:null,pr:null},
   {n:"The 88",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.334746,ln:-121.887385,id:"",w:"http://www.88sanjose.com/",pr:null},
   {n:"The Carlson Building",a:"52 South 1st Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.335361,ln:-121.889537,id:"",w:null,pr:null},
-  {n:"The Enclave Building 1",a:"4301 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.414424,ln:-121.961538,id:"",w:null,pr:null},
-  {n:"The Enclave Building 2",a:"4307 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.415227,ln:-121.961541,id:"",w:null,pr:null},
-  {n:"The Enclave Building 3",a:"4319 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.415834,ln:-121.962055,id:"",w:null,pr:null},
-  {n:"The Enclave Building 4",a:"4325 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.415172,ln:-121.962595,id:"",w:null,pr:null},
-  {n:"The Enclave Building 5",a:"4331 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.414678,ln:-121.962576,id:"",w:null,pr:null},
-  {n:"The Enclave Building 6",a:"4337 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.414103,ln:-121.962629,id:"",w:null,pr:null},
-  {n:"The Enclave Building 7",a:"4349 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.412913,ln:-121.962094,id:"",w:null,pr:null},
-  {n:"The Enclave Building 8",a:"4355 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.413201,ln:-121.961466,id:"",w:null,pr:null},
+  {n:"The Enclave",a:"4301 Renaissance Drive",c:"San Jose",r:0,v:0,p:null,t:"VTA",lt:37.414444,ln:-121.962062,id:"",w:null,pr:null},
   {n:"The Globe",a:"25 South 3rd Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.336513,ln:-121.888363,id:"",w:null,pr:null},
   {n:"The Grad",a:"88 East San Carlos Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.331877,ln:-121.885249,id:"",w:"https://amcalhousing.com/amcal/the-graduate-san-jose/",pr:null},
   {n:"The Julian",a:"73 East Julian Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.341452,ln:-121.892409,id:"",w:null,pr:null},
   {n:"The Neo on First",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.321337,ln:-121.879445,id:"",w:null,pr:null},
   {n:"The Pierce Apartments",a:"2 Pierce Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.326967,ln:-121.884493,id:"",w:null,pr:null},
   {n:"The Plaza",a:"30 East Julian Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.34058,ln:-121.893147,id:"",w:null,pr:null},
-  {n:"The Professional Building",a:"715 North 1st Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.34964,ln:-121.901066,id:"",w:null,pr:null},
   {n:"The Sands",a:"460 South 10th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.333894,ln:-121.875525,id:"",w:null,pr:null},
   {n:"The Taft",a:"477 South Market Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.328484,ln:-121.886189,id:"",w:"https://thetaftapts.com/",pr:"$1,000/mo"},
   {n:"The Thomas Victoria Building",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.339943,ln:-121.893694,id:"",w:null,pr:null},
@@ -392,6 +445,7 @@ const D=[
   {n:"University Place",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.335377,ln:-121.875247,id:"",w:null,pr:null},
   {n:"University Square",a:"873 Franklin Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain",lt:37.35068,ln:-121.943043,id:"",w:"https://www.scu.edu/living/residential-living-options/graduate/graduate--law-living-options/university-square-/",pr:null},
   {n:"Verdome Place",a:"750 Miller Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.349545,ln:-121.901775,id:"",w:null,pr:null},
+  {n:"Vespaio",a:"130 Stockton Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.333008,ln:-121.904163,id:"",w:"https://vespaio.thehudsoncompanies.net/",pr:null},
   {n:"Villa Fontanas",a:"1445 Fruitdale Avenue",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.311268,ln:-121.916229,id:"",w:null,pr:null},
   {n:"Village Apartments",a:"576 South 5th Street",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.329684,ln:-121.879542,id:"",w:null,pr:null},
   {n:"Villas at Fourth Street",a:"1020 North 4th Street",c:"San Jose",r:0,v:0,p:null,t:"BART",lt:37.357157,ln:-121.901522,id:"",w:null,pr:null},
@@ -399,16 +453,17 @@ const D=[
   {n:"Zen Gardens Apartments",a:"",c:"San Jose",r:0,v:0,p:null,t:"BART/Caltrain/VTA",lt:37.347425,ln:-121.89654,id:"",w:null,pr:null},
   {n:"eaves San Jose",a:"1895 N Capitol Ave",c:"San Jose",r:4.3,v:385,p:"+1 408-216-8948",t:"VTA",lt:37.4023,ln:-121.881,id:"ChIJSXodrqHOj4ARBVPKNo3CN_w",w:null,pr:null},
   {n:"AVE Santa Clara",a:"2240 Calle De Luna",c:"Santa Clara",r:4.6,v:61,p:"+1 833-554-1118",t:"Caltrain",lt:37.4089,ln:-121.964,id:"ChIJxXFU1hrJj4ARDSaenf25BJE",w:null,pr:null},
+  {n:"Alpine",a:"",c:"Santa Clara",r:0,v:0,p:null,t:"Caltrain",lt:37.351603,ln:-121.980243,id:"",w:null,pr:null},
   {n:"Balmoral Apartments",a:"3585 Agate Dr",c:"Santa Clara",r:4.5,v:20,p:"+1 408-280-6000",t:"Caltrain",lt:37.3697,ln:-121.9955,id:"ChIJSX4WvaC3j4AR0xne2gnhZG0",w:null,pr:null},
   {n:"Brandon Apartments",a:"",c:"Santa Clara",r:0,v:0,p:null,t:"VTA",lt:37.403251,ln:-121.943791,id:"",w:null,pr:null},
   {n:"Estancia at Santa Clara",a:"1650 Hope Dr",c:"Santa Clara",r:4.1,v:378,p:"+1 408-969-0364",t:"Caltrain",lt:37.3993,ln:-121.9565,id:"ChIJSzuGD6PJj4ARM9czsdP6KqA",w:null,pr:null},
   {n:"Hidden Lake Apartments",a:"3375 Homestead Rd",c:"Santa Clara",r:4.7,v:52,p:"+1 833-242-6730",t:"Caltrain",lt:37.3381,ln:-121.9901,id:"ChIJM_Au0XnKj4ARO6HKbwZdz3w",w:null,pr:null},
   {n:"Mylo Santa Clara",a:"3710 El Camino Real",c:"Santa Clara",r:0,v:0,p:null,t:"Caltrain",lt:37.350411,ln:-121.997966,id:"",w:null,pr:null},
-  {n:"Oaks 2",a:"25 Rio Robles East",c:"Santa Clara",r:0,v:0,p:null,t:"VTA",lt:37.40688,ln:-121.942028,id:"",w:null,pr:null},
   {n:"Park Central",a:"1050 Benton St",c:"Santa Clara",r:4.4,v:97,p:"+1 408-831-7660",t:"Caltrain",lt:37.3501,ln:-121.946,id:"ChIJ09rNQK3Lj4ARL5KY1wchHdU",w:null,pr:null},
   {n:"Riverwood Place",a:"",c:"Santa Clara",r:0,v:0,p:null,t:"VTA",lt:37.407744,ln:-121.961385,id:"",w:null,pr:null},
   {n:"Santa Clara Square",a:"3320 Montgomery Dr",c:"Santa Clara",r:4.2,v:565,p:"+1 949-299-5089",t:"Caltrain",lt:37.3811,ln:-121.9731,id:"ChIJCelZFPLJj4AR41b4sav538A",w:null,pr:null},
   {n:"Santana Terrace",a:"190 N Winchester Blvd",c:"Santa Clara",r:4.9,v:66,p:"+1 408-898-9718",t:"Caltrain",lt:37.3287,ln:-121.9506,id:"ChIJ9Z8K65bLj4ARDI1mc9mG0Q4",w:null,pr:null},
+  {n:"Sofía",a:"3580",c:"Santa Clara",r:0,v:0,p:null,t:"Caltrain",lt:37.375928,ln:-121.994796,id:"",w:null,pr:null},
   {n:"St. Anton Apartments Santa Clara",a:"2231 Calle Del Mundo",c:"Santa Clara",r:0,v:0,p:null,t:"VTA",lt:37.410619,ln:-121.964513,id:"",w:null,pr:null},
   {n:"The Benton",a:"588 El Camino Real",c:"Santa Clara",r:4.6,v:189,p:"+1 833-920-3676",t:"Caltrain",lt:37.3534,ln:-121.9398,id:"ChIJAz54EcIr3YAR-XymfsRRgVk",w:null,pr:null},
   {n:"The Clara",a:"5150 Calle Del Sol",c:"Santa Clara",r:4.0,v:73,p:"+1 669-338-4391",t:"Caltrain",lt:37.4081,ln:-121.965,id:"ChIJt3o7AgDJj4ARYjM2gFC6Biw",w:null,pr:null},
@@ -419,17 +474,13 @@ const D=[
   {n:"1033 Crestview",a:"1033 Crestview Drive",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.372818,ln:-122.059871,id:"",w:null,pr:null},
   {n:"481 on Mathilda",a:"481 S Mathilda Ave",c:"Sunnyvale",r:4.4,v:116,p:"+1 650-547-8866",t:"Caltrain",lt:37.3725,ln:-122.0362,id:"ChIJs1D7d2C2j4ARHwKU1PfmjFk",w:null,pr:null},
   {n:"522 West Fremont Apartments",a:"522 West Fremont Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.351841,ln:-122.03338,id:"",w:null,pr:null},
-  {n:"783 Alice Ave",a:"783 Alice Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.380924,ln:-122.066733,id:"",w:null,pr:null},
   {n:"Belmont Village",a:"1039 East El Camino Real",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.352828,ln:-122.005672,id:"",w:"https://www.belmontvillage.com/locations/sunnyvale-california/",pr:null},
   {n:"Cityline Sunnyvale",a:"241 S Taaffe St",c:"Sunnyvale",r:5.0,v:10,p:"+1 408-736-7609",t:"Caltrain",lt:37.3753,ln:-122.0328,id:"ChIJl1ZbdJC3j4ARc8DEi2-54Lg",w:null,pr:null},
   {n:"Erimar Apartment",a:"767 South Wolfe Road",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.364964,ln:-122.014667,id:"",w:null,pr:null},
   {n:"Fernmar Studios",a:"645 San Juan Drive",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.389172,ln:-122.011757,id:"",w:null,pr:null},
   {n:"Ironworks Apartments",a:"457 E Evelyn Ave",c:"Sunnyvale",r:4.2,v:101,p:"+1 650-542-7466",t:"Caltrain",lt:37.3763,ln:-122.0251,id:"ChIJwwH_v0K2j4ARshTuS9bofNw",w:null,pr:null},
   {n:"Ironworks South",a:"388 East Evelyn Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.376167,ln:-122.026537,id:"",w:null,pr:null},
-  {n:"Kensington Place Apartments, Building 1",a:"1220 North Fair Oaks Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"VTA",lt:37.404364,ln:-122.009032,id:"",w:null,pr:null},
-  {n:"Kensington Place Apartments, Building 2",a:"1220 North Fair Oaks Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"VTA",lt:37.404679,ln:-122.008961,id:"",w:null,pr:null},
-  {n:"Kensington Place Apartments, Building 3",a:"1220 North Fair Oaks Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"VTA",lt:37.404498,ln:-122.007991,id:"",w:null,pr:null},
-  {n:"Kensington Place Apartments, Building 4",a:"1220 North Fair Oaks Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"VTA",lt:37.404164,ln:-122.008096,id:"",w:null,pr:null},
+  {n:"Kensington Place Apartments,",a:"1220 North Fair Oaks Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"VTA",lt:37.404426,ln:-122.00852,id:"",w:null,pr:null},
   {n:"Laurel Manor",a:"255 West Maude Avenue",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.389069,ln:-122.027891,id:"",w:null,pr:null},
   {n:"Loft House Apartments",a:"",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.377328,ln:-122.031721,id:"",w:"https://www.carmelapartments.com/loft-house-sunnyvale-ca",pr:null},
   {n:"Melrose Place",a:"523 Walker Drive",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.402096,ln:-122.066092,id:"",w:null,pr:null},
@@ -439,7 +490,6 @@ const D=[
   {n:"Park Taylor Appartments",a:"630 Taylor Court",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.401792,ln:-122.06728,id:"",w:null,pr:null},
   {n:"Park West",a:"603 San Juan Drive",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.388549,ln:-122.011976,id:"",w:null,pr:null},
   {n:"Parkview Apartments",a:"529 Taylor Court",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.401835,ln:-122.066636,id:"",w:null,pr:null},
-  {n:"Recreation Room / Laundry",a:"",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.36141,ln:-122.027398,id:"",w:null,pr:null},
   {n:"Riviera East",a:"1352 Kingfisher Way",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.350253,ln:-122.016352,id:"",w:null,pr:null},
   {n:"Riviera West",a:"1362 Kingfisher Way",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.349869,ln:-122.016347,id:"",w:null,pr:null},
   {n:"San Juan Apartments",a:"676 San Juan Drive",c:"Sunnyvale",r:0,v:0,p:null,t:"Caltrain",lt:37.3897,ln:-122.011003,id:"",w:null,pr:null},
@@ -454,55 +504,58 @@ const D=[
   {n:"Dry Creek Apartment",a:"",c:"Union City",r:0,v:0,p:null,t:"BART",lt:37.607535,ln:-122.019053,id:"",w:null,pr:null}
 ];
 
-const CC={Milpitas:"#ef4444",Fremont:"#3b82f6",Hayward:"#8b5cf6","Santa Clara":"#10b981","San Jose":"#f97316","S. San Jose":"#f97316","Mountain View":"#06b6d4",Sunnyvale:"#eab308","Palo Alto":"#ec4899","Menlo Park":"#a855f7","Union City":"#14b8a6"};
-const CI=["Milpitas","Fremont","Hayward","Union City","Santa Clara","San Jose","S. San Jose","Mountain View","Sunnyvale","Palo Alto","Menlo Park"];
-const ST=[
-{n:"Hayward BART",lt:37.6700,ln:-122.0870,t:"b"},{n:"South Hayward BART",lt:37.6348,ln:-122.0571,t:"b"},
-{n:"Union City BART",lt:37.5910,ln:-122.0175,t:"b"},{n:"Fremont BART",lt:37.5574,ln:-121.9764,t:"b"},
-{n:"Warm Springs BART",lt:37.5024,ln:-121.9395,t:"b"},{n:"Milpitas BART",lt:37.4104,ln:-121.8910,t:"b"},
-{n:"Berryessa BART",lt:37.3688,ln:-121.8495,t:"b"},
-{n:"Alum Rock BART",lt:37.3660,ln:-121.8293,t:"b"},{n:"Downtown SJ BART",lt:37.3382,ln:-121.8863,t:"b"},
-{n:"Diridon BART",lt:37.3297,ln:-121.9020,t:"b"},{n:"Santa Clara BART",lt:37.3531,ln:-121.9369,t:"b"},
-{n:"San Jose Diridon",lt:37.3297,ln:-121.9020,t:"x"},{n:"Santa Clara Caltrain",lt:37.3531,ln:-121.9369,t:"c"},
-{n:"Lawrence Caltrain",lt:37.3708,ln:-121.9970,t:"c"},{n:"Sunnyvale Caltrain",lt:37.3783,ln:-122.0308,t:"c"},
-{n:"Mountain View Caltrain",lt:37.3946,ln:-122.0764,t:"c"},{n:"San Antonio Caltrain",lt:37.4069,ln:-122.1070,t:"c"},
-{n:"California Ave Caltrain",lt:37.4292,ln:-122.1422,t:"c"},{n:"Palo Alto Caltrain",lt:37.4432,ln:-122.1649,t:"c"},
-{n:"Menlo Park Caltrain",lt:37.4547,ln:-122.1823,t:"c"},
-{n:"VTA Great Mall",lt:37.4153,ln:-121.8985,t:"v"},{n:"VTA Hostetter",lt:37.3877,ln:-121.8772,t:"v"},
-{n:"VTA Civic Center",lt:37.3300,ln:-121.8889,t:"v"},{n:"VTA Convention Ctr",lt:37.3298,ln:-121.8861,t:"v"},
-{n:"VTA Santa Teresa",lt:37.2539,ln:-121.8027,t:"v"},{n:"VTA Cottle",lt:37.2634,ln:-121.7969,t:"v"},
-{n:"VTA Snell",lt:37.2700,ln:-121.8008,t:"v"},{n:"VTA Branham",lt:37.2820,ln:-121.8278,t:"v"},
-{n:"VTA Ohlone",lt:37.2897,ln:-121.8429,t:"v"},{n:"VTA Blossom Hill",lt:37.2527,ln:-121.7977,t:"v"},
-{n:"VTA Capitol",lt:37.2875,ln:-121.8363,t:"v"},{n:"VTA Curtner",lt:37.3097,ln:-121.8867,t:"v"},
-{n:"VTA Tamien",lt:37.3118,ln:-121.8834,t:"v"},{n:"VTA Baypointe",lt:37.4019,ln:-121.9130,t:"v"},
-{n:"VTA Lick Mill",lt:37.3932,ln:-121.9265,t:"v"},{n:"VTA Old Ironsides",lt:37.3893,ln:-121.9502,t:"v"},
-{n:"VTA Great America",lt:37.4066,ln:-121.9766,t:"v"},{n:"VTA Reamwood",lt:37.3982,ln:-121.9471,t:"v"},
+const CC={
+  "Fremont":"#3b82f6","Hayward":"#ef4444","Union City":"#8b5cf6",
+  "Milpitas":"#ec4899","San Jose":"#f97316","S. San Jose":"#fb923c",
+  "Santa Clara":"#06b6d4","Sunnyvale":"#eab308","Mountain View":"#10b981",
+  "Palo Alto":"#a78bfa","Menlo Park":"#14b8a6","Los Altos":"#f43f5e",
+  "Cupertino":"#84cc16","Campbell":"#e879f9"
+};
+const CI=[...new Set(D.map(a=>a.c).filter(Boolean))].sort();
+const S={c:'All',t:'All',s:'rating',q:''};
+let map,mk=[],sel=-1;
+
+const STN=[
+{n:"Hayward",lt:37.6700,ln:-122.0870,t:"b"},{n:"South Hayward",lt:37.6348,ln:-122.0571,t:"b"},
+{n:"Union City",lt:37.5910,ln:-122.0175,t:"b"},{n:"Fremont",lt:37.5574,ln:-121.9764,t:"b"},
+{n:"Warm Springs",lt:37.5024,ln:-121.9395,t:"b"},{n:"Milpitas",lt:37.4104,ln:-121.8910,t:"b"},
+{n:"Berryessa",lt:37.3688,ln:-121.8495,t:"b"},
+{n:"San Jose Diridon",lt:37.3297,ln:-121.9020,t:"bc"},
+{n:"Santa Clara",lt:37.3531,ln:-121.9369,t:"c"},{n:"Lawrence",lt:37.3708,ln:-121.9970,t:"c"},
+{n:"Sunnyvale",lt:37.3783,ln:-122.0308,t:"c"},{n:"Mountain View",lt:37.3946,ln:-122.0764,t:"c"},
+{n:"San Antonio",lt:37.4069,ln:-122.1070,t:"c"},{n:"California Ave",lt:37.4292,ln:-122.1422,t:"c"},
+{n:"Palo Alto",lt:37.4432,ln:-122.1649,t:"c"},{n:"Menlo Park",lt:37.4547,ln:-122.1823,t:"c"},
+{n:"Great Mall",lt:37.4153,ln:-121.8985,t:"v"},{n:"Hostetter",lt:37.3877,ln:-121.8772,t:"v"},
+{n:"Civic Center",lt:37.3300,ln:-121.8889,t:"v"},{n:"Convention Ctr",lt:37.3298,ln:-121.8861,t:"v"},
+{n:"Santa Teresa",lt:37.2539,ln:-121.8027,t:"v"},{n:"Cottle",lt:37.2634,ln:-121.7969,t:"v"},
+{n:"Snell",lt:37.2700,ln:-121.8008,t:"v"},{n:"Branham",lt:37.2820,ln:-121.8278,t:"v"},
+{n:"Ohlone",lt:37.2897,ln:-121.8429,t:"v"},{n:"Blossom Hill",lt:37.2527,ln:-121.7977,t:"v"},
+{n:"Capitol",lt:37.2875,ln:-121.8363,t:"v"},{n:"Curtner",lt:37.3097,ln:-121.8867,t:"v"},
+{n:"Tamien",lt:37.3118,ln:-121.8834,t:"v"},{n:"Baypointe",lt:37.4019,ln:-121.9130,t:"v"},
+{n:"Lick Mill",lt:37.3932,ln:-121.9265,t:"v"},{n:"Old Ironsides",lt:37.3893,ln:-121.9502,t:"v"},
+{n:"Great America",lt:37.4066,ln:-121.9766,t:"v"},
 ];
 
-let S={c:"All",t:"All",s:"rating",q:""},map,mk=[],sel=-1;
-
 function init(){
-map=L.map('map',{zoomControl:false}).setView([37.42,-121.98],11);
+map=L.map('map',{zoomControl:false}).setView([37.42,-122.0],11);
 L.control.zoom({position:'topright'}).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-subdomains:'abcd',maxZoom:19}).addTo(map);
-
-ST.forEach(s=>{
-const cl=s.t==='b'?'#3b82f6':s.t==='c'?'#10b981':s.t==='v'?'#eab308':'#a855f7';
-const ic=L.divIcon({className:'si',html:`<div style="width:10px;height:10px;border-radius:50%;background:${cl};border:2px solid ${cl}44;box-shadow:0 0 8px ${cl}55;opacity:.7"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
+  attribution:'&copy; OSM &copy; CARTO',maxZoom:19}).addTo(map);
+STN.forEach(s=>{
+const cl=s.t.includes('b')&&s.t.includes('c')?'#a855f7':s.t==='b'?'#3b82f6':s.t==='c'?'#10b981':'#eab308';
+const ic=L.divIcon({className:'si',html:`<div style="width:10px;height:10px;border-radius:50%;background:${cl};border:2px solid ${cl}44;box-shadow:0 0 10px ${cl}66;opacity:.7"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
 L.marker([s.lt,s.ln],{icon:ic}).addTo(map).bindTooltip(s.n,{permanent:false,direction:'top',offset:[0,-8]});
 });
-
 const cf=document.getElementById('cf');
 cf.innerHTML=`<button class="fb on" onclick="fC('All')">All</button>`+CI.map(c=>`<button class="fb" onclick="fC('${c}')">${c}</button>`).join('');
 const tf=document.getElementById('tf');
 tf.innerHTML=`<button class="fb on" onclick="fT('All')">All Transit</button><button class="fb bt" onclick="fT('BART')">BART</button><button class="fb ct" onclick="fT('Caltrain')">Caltrain</button><button class="fb vt" onclick="fT('VTA')">VTA</button>`;
 const sf=document.getElementById('sf');
-sf.innerHTML=`<button class="fb on" data-s="rating" onclick="fS('rating')">Rating ↓</button><button class="fb" data-s="reviews" onclick="fS('reviews')">Reviews ↓</button><button class="fb" data-s="name" onclick="fS('name')">A-Z</button>`;
+sf.innerHTML=`<button class="fb on" data-s="rating" onclick="fS('rating')">Rating &#8595;</button><button class="fb" data-s="reviews" onclick="fS('reviews')">Reviews &#8595;</button><button class="fb" data-s="name" onclick="fS('name')">A-Z</button><button class="fb" data-s="price" onclick="fS('price')">Price &#8593;</button>`;
 document.getElementById('search').addEventListener('input',e=>{S.q=e.target.value;render()});
-render();
-}
+animateCount(D.length);render();}
+
+function animateCount(target){const el=document.getElementById('tc');let c=0;const step=Math.ceil(target/40);const t=setInterval(()=>{c=Math.min(c+step,target);el.textContent=c;if(c>=target)clearInterval(t)},25)}
 
 function fC(v){S.c=v;document.getElementById('cf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All':x===v)});render()}
 function fT(v){S.t=v;document.getElementById('tf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All Transit':x===v)});render()}
@@ -517,35 +570,50 @@ return true});
 if(S.s==='rating')l.sort((a,b)=>b.r-a.r);
 else if(S.s==='reviews')l.sort((a,b)=>b.v-a.v);
 else if(S.s==='name')l.sort((a,b)=>a.n.localeCompare(b.n));
+else if(S.s==='price'){l.sort((a,b)=>{const pa=a.pr?parseInt(a.pr.replace(/[^0-9]/g,'')):999999;const pb=b.pr?parseInt(b.pr.replace(/[^0-9]/g,'')):999999;return pa-pb})}
 return l}
 
-function sr(r){const f=Math.floor(r),h=r%1>=.3;return"★".repeat(f)+(h?"½":"")+"☆".repeat(5-f-(h?1:0))}
-function tt(t){if(t.includes("BART")&&t.includes("Caltrain"))return'<span class="tg" style="background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)">BART/Caltrain</span>';if(t.includes("BART"))return'<span class="tg" style="background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)">BART</span>';if(t==="VTA")return'<span class="tg" style="background:rgba(234,179,8,.12);color:#facc15;border:1px solid rgba(234,179,8,.25)">VTA</span>';return'<span class="tg" style="background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)">Caltrain</span>'}
+function sr(r){if(!r)return'';const f=Math.floor(r),h=r%1>=.3;return"\u2605".repeat(f)+(h?"\u00BD":"")+"\u2606".repeat(5-f-(h?1:0))}
+
+function tt(t){
+if(t.includes("BART")&&t.includes("Caltrain"))return'<span class="tg" style="background:rgba(139,92,246,.1);color:#a78bfa;border:1px solid rgba(139,92,246,.2);box-shadow:0 0 8px rgba(139,92,246,.08)">BART/Caltrain</span>';
+if(t.includes("BART"))return'<span class="tg" style="background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.2);box-shadow:0 0 8px rgba(59,130,246,.08)">BART</span>';
+if(t==="VTA")return'<span class="tg" style="background:rgba(234,179,8,.1);color:#facc15;border:1px solid rgba(234,179,8,.2);box-shadow:0 0 8px rgba(234,179,8,.08)">VTA</span>';
+return'<span class="tg" style="background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2);box-shadow:0 0 8px rgba(16,185,129,.08)">Caltrain</span>'}
 
 function render(){
 const f=gF();sel=-1;
-document.getElementById('cb').textContent=`Showing ${f.length} of ${D.length}`;
-document.getElementById('tc').textContent=D.length;
+document.getElementById('cb').textContent=`Showing ${f.length} of ${D.length} apartments`;
 const al=document.getElementById('al');
-al.innerHTML=f.map((a,i)=>{const co=CC[a.c]||'#f97316';return`<div class="ac" id="cd-${i}" onclick="go(${i})"><div class="an">${a.n}</div><div class="aa">${a.a}, ${a.c}</div><div class="at"><span class="tg" style="background:${co}18;color:${co};border:1px solid ${co}40">${a.c}</span>${tt(a.t)}<span class="st">${sr(a.r)}</span><span class="rt">${a.r} (${a.v})</span></div><div class="ap"><a href="tel:${a.p}">${a.p}</a></div><div class="lk"><a href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank" rel="noopener">Google Maps →</a></div></div>`}).join('');
+al.innerHTML=f.map((a,i)=>{
+const co=CC[a.c]||'#f97316';const delay=Math.min(i*30,600);
+const prBadge=a.pr?`<span class="price-tag">${a.pr}</span>`:'';
+const phoneHtml=a.p?`<div class="ap"><a href="tel:${a.p}">${a.p}</a></div>`:'';
+const ratingHtml=a.r?`<span class="st">${sr(a.r)}</span><span class="rt">${a.r} (${a.v})</span>`:'';
+const wsLink=a.w?`<a class="ws" href="${a.w}" target="_blank" rel="noopener">Website <span class="arrow">&rarr;</span></a>`:'';
+return`<div class="ac" id="cd-${i}" onclick="go(${i})" style="animation-delay:${delay}ms">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+<div style="flex:1;min-width:0"><div class="an">${a.n}</div><div class="aa">${a.a}${a.a&&a.c?', ':''}${a.c}</div></div>
+${prBadge?`<div>${prBadge}</div>`:''}</div>
+<div class="at"><span class="tg" style="background:${co}14;color:${co};border:1px solid ${co}30">${a.c}</span>${tt(a.t)}${ratingHtml}</div>
+${phoneHtml}
+<div class="lk"><a class="gm" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank" rel="noopener">Maps <span class="arrow">&rarr;</span></a>${wsLink}</div></div>`}).join('');
 
 mk.forEach(m=>map.removeLayer(m));mk=[];
 f.forEach((a,i)=>{
 const co=CC[a.c]||'#f97316';
-const ic=L.divIcon({className:'si',html:`<div style="width:14px;height:14px;border-radius:50%;background:${co};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .15s"></div>`,iconSize:[19,19],iconAnchor:[9,9]});
+const ic=L.divIcon({className:'si',html:`<div class="marker-pulse" style="width:14px;height:14px;border-radius:50%;background:${co};border:2.5px solid rgba(255,255,255,0.8);box-shadow:0 0 12px ${co}88;cursor:pointer;transition:transform .2s"></div>`,iconSize:[19,19],iconAnchor:[9,9]});
 const m=L.marker([a.lt,a.ln],{icon:ic}).addTo(map);
-m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div><div class="pr">${sr(a.r)} ${a.r} (${a.v} reviews)</div><div class="pp">${a.p}</div><a class="pl" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank">Open in Google Maps →</a>`,{maxWidth:280});
+const prText=a.pr?`<div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fb923c;font-weight:700;margin:6px 0">${a.pr}</div>`:'';
+m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div>${prText}<div class="pr">${a.r?sr(a.r)+' '+a.r+' ('+a.v+' reviews)':''}</div><div class="pp">${a.p||''}</div><a class="pl" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank">Open in Google Maps &rarr;</a>`,{maxWidth:300});
 m.on('click',()=>{document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));const cd=document.getElementById(`cd-${i}`);if(cd){cd.classList.add('sel');cd.scrollIntoView({behavior:'smooth',block:'center'})}});
 mk.push(m)});
-if(f.length>0){const g=L.featureGroup(mk);map.fitBounds(g.getBounds().pad(0.08))}
-}
+if(f.length>0){const g=L.featureGroup(mk);map.fitBounds(g.getBounds().pad(0.08))}}
 
-function go(i){
-const f=gF(),a=f[i];if(!a)return;
+function go(i){const f=gF(),a=f[i];if(!a)return;
 document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));
-document.getElementById(`cd-${i}`).classList.add('sel');
-map.flyTo([a.lt,a.ln],15,{duration:.8});
-if(mk[i])mk[i].openPopup()}
+const card=document.getElementById(`cd-${i}`);if(card)card.classList.add('sel');
+map.flyTo([a.lt,a.ln],15,{duration:.8});if(mk[i])mk[i].openPopup()}
 
 window.fC=fC;window.fT=fT;window.fS=fS;window.go=go;
 document.addEventListener('DOMContentLoaded',init);

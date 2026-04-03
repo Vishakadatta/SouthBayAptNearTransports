@@ -6,59 +6,143 @@
 <title>South Bay Transit Apartments</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0e1a;--sf:#111827;--sf2:#1a2234;--bd:#1e293b;--tx:#e2e8f0;--mt:#64748b;--ac:#f97316;--bart:#3b82f6;--cal:#10b981;--vta:#eab308}
+:root{
+  --bg:#06080f;--sf:rgba(15,20,35,0.85);--sf2:rgba(25,32,52,0.9);--glass:rgba(20,26,45,0.6);
+  --bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.1);
+  --tx:#e2e8f0;--mt:#64748b;--ac:#f97316;--ac2:#fb923c;
+  --bart:#3b82f6;--cal:#10b981;--vta:#eab308;
+  --glow:rgba(249,115,22,0.15);--glow2:rgba(249,115,22,0.3)
+}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
-.layout{display:flex;height:100vh}
-.sidebar{width:400px;min-width:400px;height:100vh;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:1000}
-.sh{padding:16px 20px 12px;border-bottom:1px solid var(--bd);background:linear-gradient(135deg,#0f172a,#1a1030)}
-.sh h1{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(90deg,#f97316,#ef4444,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sh .sub{font-size:11px;color:var(--mt);margin-top:3px}
-.filters{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:7px}
-.sb{background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:8px 11px;color:var(--tx);font-size:13px;font-family:'Outfit',sans-serif;outline:none;width:100%;transition:border-color .2s}
-.sb:focus{border-color:var(--ac)}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 20% 40%,rgba(59,130,246,0.06),transparent),
+  radial-gradient(ellipse 60% 40% at 80% 60%,rgba(249,115,22,0.05),transparent),
+  radial-gradient(ellipse 50% 50% at 50% 50%,rgba(139,92,246,0.04),transparent);
+  pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:24px 24px;pointer-events:none;z-index:0}
+.layout{display:flex;height:100vh;position:relative;z-index:1}
+
+.sidebar{width:420px;min-width:420px;height:100vh;
+  background:var(--sf);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-right:1px solid var(--bd2);display:flex;flex-direction:column;z-index:1000}
+
+.sh{padding:20px 22px 16px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(30,15,50,0.95))}
+.sh::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,0.08),rgba(236,72,153,0.06),transparent);
+  animation:shimmer 6s ease-in-out infinite;pointer-events:none}
+@keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
+.sh::after{content:'';position:absolute;top:8px;right:30px;width:4px;height:4px;border-radius:50%;
+  background:var(--ac);box-shadow:
+    20px 12px 0 rgba(59,130,246,0.6),45px -5px 0 rgba(236,72,153,0.5),
+    -15px 18px 0 rgba(139,92,246,0.5),60px 8px 0 rgba(16,185,129,0.5),
+    35px 20px 0 rgba(249,115,22,0.4);
+  animation:float 4s ease-in-out infinite;pointer-events:none}
+@keyframes float{0%,100%{transform:translateY(0) scale(1);opacity:0.6}50%{transform:translateY(-6px) scale(1.2);opacity:1}}
+.sh h1{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;letter-spacing:-0.5px;position:relative;
+  background:linear-gradient(90deg,#f97316,#ef4444,#ec4899,#a855f7,#f97316);background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 4s linear infinite}
+@keyframes gradShift{to{background-position:200% center}}
+.sh .sub{font-size:11px;color:var(--mt);margin-top:5px;font-weight:400;position:relative}
+.sh .sub span{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ac)}
+
+.filters{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:8px;
+  background:rgba(10,14,26,0.4);backdrop-filter:blur(10px)}
+.sb{background:rgba(10,14,26,0.6);border:1px solid var(--bd2);border-radius:10px;padding:10px 14px;color:var(--tx);
+  font-size:13px;font-family:'Outfit',sans-serif;outline:none;width:100%;transition:all .25s;backdrop-filter:blur(8px)}
+.sb:focus{border-color:var(--ac);box-shadow:0 0 20px rgba(249,115,22,0.12)}
+.sb::placeholder{color:rgba(100,116,139,0.7)}
 .fr{display:flex;gap:5px;flex-wrap:wrap}
-.fb{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:4px 9px;color:var(--mt);font-size:10px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
-.fb:hover{border-color:var(--ac);color:var(--tx)}
-.fb.on{background:rgba(249,115,22,.15);border-color:var(--ac);color:var(--ac)}
-.fb.bt.on{background:rgba(59,130,246,.15);border-color:var(--bart);color:var(--bart)}
-.fb.ct.on{background:rgba(16,185,129,.15);border-color:var(--cal);color:var(--cal)}
-.fb.vt.on{background:rgba(234,179,8,.15);border-color:var(--vta);color:var(--vta)}
-.cb{padding:5px 14px;font-size:11px;color:var(--mt);border-bottom:1px solid var(--bd)}
-.al{flex:1;overflow-y:auto}
-.al::-webkit-scrollbar{width:4px}
-.al::-webkit-scrollbar-track{background:var(--sf)}
-.al::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-.ac{padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .12s}
-.ac:hover{background:var(--sf2)}
-.ac.sel{background:rgba(249,115,22,.07);border-left:3px solid var(--ac)}
-.an{font-size:13px;font-weight:600;color:#f1f5f9;margin-bottom:2px}
-.aa{font-size:11px;color:var(--mt);margin-bottom:5px}
-.at{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-.tg{font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;display:inline-block}
-.st{color:#f59e0b;font-size:11px;letter-spacing:.3px}
+.fb{background:rgba(10,14,26,0.5);border:1px solid var(--bd2);border-radius:8px;padding:5px 10px;
+  color:var(--mt);font-size:10px;font-weight:500;cursor:pointer;transition:all .2s;
+  font-family:'Outfit',sans-serif;backdrop-filter:blur(4px)}
+.fb:hover{border-color:rgba(249,115,22,0.4);color:var(--tx);transform:translateY(-1px)}
+.fb.on{background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.4);color:var(--ac);box-shadow:0 0 12px rgba(249,115,22,0.1)}
+.fb.bt.on{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.4);color:var(--bart);box-shadow:0 0 12px rgba(59,130,246,0.1)}
+.fb.ct.on{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:var(--cal);box-shadow:0 0 12px rgba(16,185,129,0.1)}
+.fb.vt.on{background:rgba(234,179,8,.12);border-color:rgba(234,179,8,.4);color:var(--vta);box-shadow:0 0 12px rgba(234,179,8,0.1)}
+
+.cb{padding:6px 16px;font-size:11px;color:var(--mt);border-bottom:1px solid var(--bd);
+  font-family:'JetBrains Mono',monospace;letter-spacing:0.3px;background:rgba(10,14,26,0.3)}
+.al{flex:1;overflow-y:auto;scroll-behavior:smooth}
+.al::-webkit-scrollbar{width:5px}
+.al::-webkit-scrollbar-track{background:transparent}
+.al::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:10px}
+.al::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15)}
+
+.ac{padding:14px 18px;margin:6px 10px;border-radius:12px;cursor:pointer;
+  transition:all .3s cubic-bezier(0.25,0.46,0.45,0.94);
+  background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--bd);position:relative;overflow:hidden;
+  opacity:0;animation:cardIn .4s ease forwards}
+.ac::before{content:'';position:absolute;inset:0;border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);pointer-events:none}
+@keyframes cardIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.ac:hover{background:rgba(30,38,60,0.7);border-color:rgba(249,115,22,0.25);
+  transform:translateY(-2px) scale(1.005);
+  box-shadow:0 8px 32px rgba(0,0,0,0.3),0 0 20px rgba(249,115,22,0.06)}
+.ac.sel{background:rgba(249,115,22,0.06);border-color:rgba(249,115,22,0.35);
+  box-shadow:0 0 24px rgba(249,115,22,0.08);border-left:3px solid var(--ac)}
+.an{font-size:14px;font-weight:600;color:#f8fafc;margin-bottom:3px;transition:color .2s}
+.ac:hover .an{color:var(--ac2)}
+.aa{font-size:11px;color:var(--mt);margin-bottom:6px}
+.at{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:4px}
+.tg{font-size:9px;font-weight:600;padding:3px 8px;border-radius:12px;display:inline-block;
+  backdrop-filter:blur(4px);transition:all .2s}
+.tg:hover{transform:scale(1.05)}
+.price-tag{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:8px;display:inline-block;
+  background:linear-gradient(135deg,rgba(249,115,22,0.2),rgba(239,68,68,0.15));
+  color:#fb923c;border:1px solid rgba(249,115,22,0.25);box-shadow:0 0 12px rgba(249,115,22,0.08)}
+.st{color:#f59e0b;font-size:11px;letter-spacing:.3px;
+  background:linear-gradient(180deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:600}
 .rt{font-size:10px;color:var(--mt)}
-.ap{font-size:10px;color:var(--mt);margin-top:4px}
-.ap a{color:#94a3b8;text-decoration:none}
-.lk{margin-top:5px;display:flex;gap:5px}
-.lk a{font-size:9px;font-weight:600;padding:3px 7px;border-radius:4px;text-decoration:none;background:rgba(249,115,22,.12);color:var(--ac);border:1px solid rgba(249,115,22,.25);transition:background .15s}
-.lk a:hover{background:rgba(249,115,22,.25)}
+.ap{font-size:10px;color:var(--mt);margin-top:5px}
+.ap a{color:#94a3b8;text-decoration:none;transition:color .2s}
+.ap a:hover{color:var(--tx)}
+.lk{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.lk a{font-size:9px;font-weight:600;padding:4px 10px;border-radius:8px;text-decoration:none;transition:all .25s;position:relative;overflow:hidden}
+.lk a.gm{background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.2)}
+.lk a.gm:hover{background:rgba(59,130,246,0.2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.15)}
+.lk a.ws{background:rgba(249,115,22,.1);color:var(--ac);border:1px solid rgba(249,115,22,.2)}
+.lk a.ws:hover{background:rgba(249,115,22,.2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(249,115,22,0.15)}
+.lk a .arrow{display:inline-block;transition:transform .2s}
+.lk a:hover .arrow{transform:translateX(3px)}
+
 .mc{flex:1;position:relative}
 #map{width:100%;height:100%}
-.leaflet-popup-content-wrapper{background:var(--sf)!important;color:var(--tx)!important;border-radius:10px!important;border:1px solid var(--bd)!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important}
-.leaflet-popup-tip{background:var(--sf)!important}
-.leaflet-popup-content{margin:12px 14px!important;font-family:'Outfit',sans-serif!important;line-height:1.5!important}
-.pn{font-weight:600;font-size:14px;margin-bottom:3px}
-.pa{font-size:12px;color:var(--mt);margin-bottom:4px}
-.pr{font-size:12px;color:#f59e0b}
-.pp{font-size:11px;color:var(--mt);margin-top:3px}
-.pl{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;color:var(--ac);text-decoration:none}
+.leaflet-popup-content-wrapper{background:rgba(15,20,35,0.92)!important;backdrop-filter:blur(16px)!important;
+  color:var(--tx)!important;border-radius:14px!important;border:1px solid rgba(255,255,255,0.1)!important;
+  box-shadow:0 12px 48px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,0.05)!important}
+.leaflet-popup-tip{background:rgba(15,20,35,0.92)!important}
+.leaflet-popup-content{margin:14px 16px!important;font-family:'Outfit',sans-serif!important;line-height:1.6!important}
+.pn{font-weight:700;font-size:15px;margin-bottom:4px;color:#f8fafc}
+.pa{font-size:12px;color:var(--mt);margin-bottom:6px}
+.pr{font-size:12px;color:#f59e0b;font-weight:500}
+.pp{font-size:11px;color:var(--mt);margin-top:4px}
+.pl{display:inline-block;margin-top:8px;font-size:11px;font-weight:600;color:var(--ac);text-decoration:none;
+  padding:4px 10px;border-radius:6px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);transition:all .2s}
+.pl:hover{background:rgba(249,115,22,0.2)}
 .si{background:none;border:none}
-.legend{position:absolute;bottom:20px;left:20px;z-index:1000;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--mt);line-height:2}
-.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
-@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:100%;height:45vh}.mc{height:55vh}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(249,115,22,0.5)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.marker-pulse{animation:pulse 2.5s ease-out infinite}
+.legend{position:absolute;bottom:20px;left:20px;z-index:1000;
+  background:rgba(15,20,35,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;
+  font-size:11px;color:var(--mt);line-height:2.2;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;box-shadow:0 0 6px currentColor}
+@media(max-width:768px){
+  .layout{flex-direction:column}
+  .sidebar{width:100%;min-width:100%;height:50vh}
+  .mc{height:50vh}
+  .sh h1{font-size:14px}
+  .ac{margin:4px 6px;padding:12px 14px}
+}
 </style>
 </head>
 <body>
@@ -66,7 +150,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overfl
 <div class="sidebar">
 <div class="sh">
 <h1>SOUTH BAY TRANSIT APTS</h1>
-<div class="sub"><span id="tc">75</span> apartments • Leaflet + OpenStreetMap • Zero API keys</div>
+<div class="sub"><span id="tc">0</span> apartments near BART, Caltrain &amp; VTA</div>
 </div>
 <div class="filters">
 <input type="text" class="sb" id="search" placeholder="Search name, address, or city...">
@@ -74,71 +158,75 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overfl
 <div class="fr" id="tf"></div>
 <div class="fr" id="sf"></div>
 </div>
-<div class="cb" id="cb">Showing 75 of 75</div>
+<div class="cb" id="cb">Loading...</div>
 <div class="al" id="al"></div>
 </div>
 <div class="mc">
 <div id="map"></div>
 <div class="legend">
-<div><span class="legend-dot" style="background:var(--bart)"></span> BART station</div>
-<div><span class="legend-dot" style="background:var(--cal)"></span> Caltrain station</div>
-<div><span class="legend-dot" style="background:#a855f7"></span> BART + Caltrain</div>
-<div style="margin-top:4px;border-top:1px solid var(--bd);padding-top:4px">Colored dots = apartments by city</div>
+<div><span class="legend-dot" style="background:var(--bart);color:var(--bart)"></span> BART station</div>
+<div><span class="legend-dot" style="background:var(--cal);color:var(--cal)"></span> Caltrain station</div>
+<div><span class="legend-dot" style="background:#a855f7;color:#a855f7"></span> BART + Caltrain</div>
+<div><span class="legend-dot" style="background:var(--vta);color:var(--vta)"></span> VTA Light Rail</div>
+<div style="margin-top:6px;border-top:1px solid var(--bd2);padding-top:6px;font-size:10px">Colored dots = apartments by city</div>
 </div>
 </div>
 </div>
 <script>
 /* __APARTMENT_DATA__ */
 
-const CC={Milpitas:"#ef4444",Fremont:"#3b82f6",Hayward:"#8b5cf6","Santa Clara":"#10b981","San Jose":"#f97316","S. San Jose":"#f97316","Mountain View":"#06b6d4",Sunnyvale:"#eab308","Palo Alto":"#ec4899","Menlo Park":"#a855f7","Union City":"#14b8a6"};
-const CI=["Milpitas","Fremont","Hayward","Union City","Santa Clara","San Jose","S. San Jose","Mountain View","Sunnyvale","Palo Alto","Menlo Park"];
-const ST=[
-{n:"Hayward BART",lt:37.6700,ln:-122.0870,t:"b"},{n:"South Hayward BART",lt:37.6348,ln:-122.0571,t:"b"},
-{n:"Union City BART",lt:37.5910,ln:-122.0175,t:"b"},{n:"Fremont BART",lt:37.5574,ln:-121.9764,t:"b"},
-{n:"Warm Springs BART",lt:37.5024,ln:-121.9395,t:"b"},{n:"Milpitas BART",lt:37.4104,ln:-121.8910,t:"b"},
-{n:"Berryessa BART",lt:37.3688,ln:-121.8495,t:"b"},
-{n:"Alum Rock BART",lt:37.3660,ln:-121.8293,t:"b"},{n:"Downtown SJ BART",lt:37.3382,ln:-121.8863,t:"b"},
-{n:"Diridon BART",lt:37.3297,ln:-121.9020,t:"b"},{n:"Santa Clara BART",lt:37.3531,ln:-121.9369,t:"b"},
-{n:"San Jose Diridon",lt:37.3297,ln:-121.9020,t:"x"},{n:"Santa Clara Caltrain",lt:37.3531,ln:-121.9369,t:"c"},
-{n:"Lawrence Caltrain",lt:37.3708,ln:-121.9970,t:"c"},{n:"Sunnyvale Caltrain",lt:37.3783,ln:-122.0308,t:"c"},
-{n:"Mountain View Caltrain",lt:37.3946,ln:-122.0764,t:"c"},{n:"San Antonio Caltrain",lt:37.4069,ln:-122.1070,t:"c"},
-{n:"California Ave Caltrain",lt:37.4292,ln:-122.1422,t:"c"},{n:"Palo Alto Caltrain",lt:37.4432,ln:-122.1649,t:"c"},
-{n:"Menlo Park Caltrain",lt:37.4547,ln:-122.1823,t:"c"},
-{n:"VTA Great Mall",lt:37.4153,ln:-121.8985,t:"v"},{n:"VTA Hostetter",lt:37.3877,ln:-121.8772,t:"v"},
-{n:"VTA Civic Center",lt:37.3300,ln:-121.8889,t:"v"},{n:"VTA Convention Ctr",lt:37.3298,ln:-121.8861,t:"v"},
-{n:"VTA Santa Teresa",lt:37.2539,ln:-121.8027,t:"v"},{n:"VTA Cottle",lt:37.2634,ln:-121.7969,t:"v"},
-{n:"VTA Snell",lt:37.2700,ln:-121.8008,t:"v"},{n:"VTA Branham",lt:37.2820,ln:-121.8278,t:"v"},
-{n:"VTA Ohlone",lt:37.2897,ln:-121.8429,t:"v"},{n:"VTA Blossom Hill",lt:37.2527,ln:-121.7977,t:"v"},
-{n:"VTA Capitol",lt:37.2875,ln:-121.8363,t:"v"},{n:"VTA Curtner",lt:37.3097,ln:-121.8867,t:"v"},
-{n:"VTA Tamien",lt:37.3118,ln:-121.8834,t:"v"},{n:"VTA Baypointe",lt:37.4019,ln:-121.9130,t:"v"},
-{n:"VTA Lick Mill",lt:37.3932,ln:-121.9265,t:"v"},{n:"VTA Old Ironsides",lt:37.3893,ln:-121.9502,t:"v"},
-{n:"VTA Great America",lt:37.4066,ln:-121.9766,t:"v"},{n:"VTA Reamwood",lt:37.3982,ln:-121.9471,t:"v"},
+const CC={
+  "Fremont":"#3b82f6","Hayward":"#ef4444","Union City":"#8b5cf6",
+  "Milpitas":"#ec4899","San Jose":"#f97316","S. San Jose":"#fb923c",
+  "Santa Clara":"#06b6d4","Sunnyvale":"#eab308","Mountain View":"#10b981",
+  "Palo Alto":"#a78bfa","Menlo Park":"#14b8a6","Los Altos":"#f43f5e",
+  "Cupertino":"#84cc16","Campbell":"#e879f9"
+};
+const CI=[...new Set(D.map(a=>a.c).filter(Boolean))].sort();
+const S={c:'All',t:'All',s:'rating',q:''};
+let map,mk=[],sel=-1;
+
+const STN=[
+{n:"Hayward",lt:37.6700,ln:-122.0870,t:"b"},{n:"South Hayward",lt:37.6348,ln:-122.0571,t:"b"},
+{n:"Union City",lt:37.5910,ln:-122.0175,t:"b"},{n:"Fremont",lt:37.5574,ln:-121.9764,t:"b"},
+{n:"Warm Springs",lt:37.5024,ln:-121.9395,t:"b"},{n:"Milpitas",lt:37.4104,ln:-121.8910,t:"b"},
+{n:"Berryessa",lt:37.3688,ln:-121.8495,t:"b"},
+{n:"San Jose Diridon",lt:37.3297,ln:-121.9020,t:"bc"},
+{n:"Santa Clara",lt:37.3531,ln:-121.9369,t:"c"},{n:"Lawrence",lt:37.3708,ln:-121.9970,t:"c"},
+{n:"Sunnyvale",lt:37.3783,ln:-122.0308,t:"c"},{n:"Mountain View",lt:37.3946,ln:-122.0764,t:"c"},
+{n:"San Antonio",lt:37.4069,ln:-122.1070,t:"c"},{n:"California Ave",lt:37.4292,ln:-122.1422,t:"c"},
+{n:"Palo Alto",lt:37.4432,ln:-122.1649,t:"c"},{n:"Menlo Park",lt:37.4547,ln:-122.1823,t:"c"},
+{n:"Great Mall",lt:37.4153,ln:-121.8985,t:"v"},{n:"Hostetter",lt:37.3877,ln:-121.8772,t:"v"},
+{n:"Civic Center",lt:37.3300,ln:-121.8889,t:"v"},{n:"Convention Ctr",lt:37.3298,ln:-121.8861,t:"v"},
+{n:"Santa Teresa",lt:37.2539,ln:-121.8027,t:"v"},{n:"Cottle",lt:37.2634,ln:-121.7969,t:"v"},
+{n:"Snell",lt:37.2700,ln:-121.8008,t:"v"},{n:"Branham",lt:37.2820,ln:-121.8278,t:"v"},
+{n:"Ohlone",lt:37.2897,ln:-121.8429,t:"v"},{n:"Blossom Hill",lt:37.2527,ln:-121.7977,t:"v"},
+{n:"Capitol",lt:37.2875,ln:-121.8363,t:"v"},{n:"Curtner",lt:37.3097,ln:-121.8867,t:"v"},
+{n:"Tamien",lt:37.3118,ln:-121.8834,t:"v"},{n:"Baypointe",lt:37.4019,ln:-121.9130,t:"v"},
+{n:"Lick Mill",lt:37.3932,ln:-121.9265,t:"v"},{n:"Old Ironsides",lt:37.3893,ln:-121.9502,t:"v"},
+{n:"Great America",lt:37.4066,ln:-121.9766,t:"v"},
 ];
 
-let S={c:"All",t:"All",s:"rating",q:""},map,mk=[],sel=-1;
-
 function init(){
-map=L.map('map',{zoomControl:false}).setView([37.42,-121.98],11);
+map=L.map('map',{zoomControl:false}).setView([37.42,-122.0],11);
 L.control.zoom({position:'topright'}).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-subdomains:'abcd',maxZoom:19}).addTo(map);
-
-ST.forEach(s=>{
-const cl=s.t==='b'?'#3b82f6':s.t==='c'?'#10b981':s.t==='v'?'#eab308':'#a855f7';
-const ic=L.divIcon({className:'si',html:`<div style="width:10px;height:10px;border-radius:50%;background:${cl};border:2px solid ${cl}44;box-shadow:0 0 8px ${cl}55;opacity:.7"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
+  attribution:'&copy; OSM &copy; CARTO',maxZoom:19}).addTo(map);
+STN.forEach(s=>{
+const cl=s.t.includes('b')&&s.t.includes('c')?'#a855f7':s.t==='b'?'#3b82f6':s.t==='c'?'#10b981':'#eab308';
+const ic=L.divIcon({className:'si',html:`<div style="width:10px;height:10px;border-radius:50%;background:${cl};border:2px solid ${cl}44;box-shadow:0 0 10px ${cl}66;opacity:.7"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
 L.marker([s.lt,s.ln],{icon:ic}).addTo(map).bindTooltip(s.n,{permanent:false,direction:'top',offset:[0,-8]});
 });
-
 const cf=document.getElementById('cf');
 cf.innerHTML=`<button class="fb on" onclick="fC('All')">All</button>`+CI.map(c=>`<button class="fb" onclick="fC('${c}')">${c}</button>`).join('');
 const tf=document.getElementById('tf');
 tf.innerHTML=`<button class="fb on" onclick="fT('All')">All Transit</button><button class="fb bt" onclick="fT('BART')">BART</button><button class="fb ct" onclick="fT('Caltrain')">Caltrain</button><button class="fb vt" onclick="fT('VTA')">VTA</button>`;
 const sf=document.getElementById('sf');
-sf.innerHTML=`<button class="fb on" data-s="rating" onclick="fS('rating')">Rating ↓</button><button class="fb" data-s="reviews" onclick="fS('reviews')">Reviews ↓</button><button class="fb" data-s="name" onclick="fS('name')">A-Z</button>`;
+sf.innerHTML=`<button class="fb on" data-s="rating" onclick="fS('rating')">Rating &#8595;</button><button class="fb" data-s="reviews" onclick="fS('reviews')">Reviews &#8595;</button><button class="fb" data-s="name" onclick="fS('name')">A-Z</button><button class="fb" data-s="price" onclick="fS('price')">Price &#8593;</button>`;
 document.getElementById('search').addEventListener('input',e=>{S.q=e.target.value;render()});
-render();
-}
+animateCount(D.length);render();}
+
+function animateCount(target){const el=document.getElementById('tc');let c=0;const step=Math.ceil(target/40);const t=setInterval(()=>{c=Math.min(c+step,target);el.textContent=c;if(c>=target)clearInterval(t)},25)}
 
 function fC(v){S.c=v;document.getElementById('cf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All':x===v)});render()}
 function fT(v){S.t=v;document.getElementById('tf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All Transit':x===v)});render()}
@@ -153,35 +241,50 @@ return true});
 if(S.s==='rating')l.sort((a,b)=>b.r-a.r);
 else if(S.s==='reviews')l.sort((a,b)=>b.v-a.v);
 else if(S.s==='name')l.sort((a,b)=>a.n.localeCompare(b.n));
+else if(S.s==='price'){l.sort((a,b)=>{const pa=a.pr?parseInt(a.pr.replace(/[^0-9]/g,'')):999999;const pb=b.pr?parseInt(b.pr.replace(/[^0-9]/g,'')):999999;return pa-pb})}
 return l}
 
-function sr(r){const f=Math.floor(r),h=r%1>=.3;return"★".repeat(f)+(h?"½":"")+"☆".repeat(5-f-(h?1:0))}
-function tt(t){if(t.includes("BART")&&t.includes("Caltrain"))return'<span class="tg" style="background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)">BART/Caltrain</span>';if(t.includes("BART"))return'<span class="tg" style="background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)">BART</span>';if(t==="VTA")return'<span class="tg" style="background:rgba(234,179,8,.12);color:#facc15;border:1px solid rgba(234,179,8,.25)">VTA</span>';return'<span class="tg" style="background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)">Caltrain</span>'}
+function sr(r){if(!r)return'';const f=Math.floor(r),h=r%1>=.3;return"\u2605".repeat(f)+(h?"\u00BD":"")+"\u2606".repeat(5-f-(h?1:0))}
+
+function tt(t){
+if(t.includes("BART")&&t.includes("Caltrain"))return'<span class="tg" style="background:rgba(139,92,246,.1);color:#a78bfa;border:1px solid rgba(139,92,246,.2);box-shadow:0 0 8px rgba(139,92,246,.08)">BART/Caltrain</span>';
+if(t.includes("BART"))return'<span class="tg" style="background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.2);box-shadow:0 0 8px rgba(59,130,246,.08)">BART</span>';
+if(t==="VTA")return'<span class="tg" style="background:rgba(234,179,8,.1);color:#facc15;border:1px solid rgba(234,179,8,.2);box-shadow:0 0 8px rgba(234,179,8,.08)">VTA</span>';
+return'<span class="tg" style="background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2);box-shadow:0 0 8px rgba(16,185,129,.08)">Caltrain</span>'}
 
 function render(){
 const f=gF();sel=-1;
-document.getElementById('cb').textContent=`Showing ${f.length} of ${D.length}`;
-document.getElementById('tc').textContent=D.length;
+document.getElementById('cb').textContent=`Showing ${f.length} of ${D.length} apartments`;
 const al=document.getElementById('al');
-al.innerHTML=f.map((a,i)=>{const co=CC[a.c]||'#f97316';return`<div class="ac" id="cd-${i}" onclick="go(${i})"><div class="an">${a.n}</div><div class="aa">${a.a}, ${a.c}</div><div class="at"><span class="tg" style="background:${co}18;color:${co};border:1px solid ${co}40">${a.c}</span>${tt(a.t)}<span class="st">${sr(a.r)}</span><span class="rt">${a.r} (${a.v})</span></div><div class="ap"><a href="tel:${a.p}">${a.p}</a></div><div class="lk"><a href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank" rel="noopener">Google Maps →</a></div></div>`}).join('');
+al.innerHTML=f.map((a,i)=>{
+const co=CC[a.c]||'#f97316';const delay=Math.min(i*30,600);
+const prBadge=a.pr?`<span class="price-tag">${a.pr}</span>`:'';
+const phoneHtml=a.p?`<div class="ap"><a href="tel:${a.p}">${a.p}</a></div>`:'';
+const ratingHtml=a.r?`<span class="st">${sr(a.r)}</span><span class="rt">${a.r} (${a.v})</span>`:'';
+const wsLink=a.w?`<a class="ws" href="${a.w}" target="_blank" rel="noopener">Website <span class="arrow">&rarr;</span></a>`:'';
+return`<div class="ac" id="cd-${i}" onclick="go(${i})" style="animation-delay:${delay}ms">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+<div style="flex:1;min-width:0"><div class="an">${a.n}</div><div class="aa">${a.a}${a.a&&a.c?', ':''}${a.c}</div></div>
+${prBadge?`<div>${prBadge}</div>`:''}</div>
+<div class="at"><span class="tg" style="background:${co}14;color:${co};border:1px solid ${co}30">${a.c}</span>${tt(a.t)}${ratingHtml}</div>
+${phoneHtml}
+<div class="lk"><a class="gm" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank" rel="noopener">Maps <span class="arrow">&rarr;</span></a>${wsLink}</div></div>`}).join('');
 
 mk.forEach(m=>map.removeLayer(m));mk=[];
 f.forEach((a,i)=>{
 const co=CC[a.c]||'#f97316';
-const ic=L.divIcon({className:'si',html:`<div style="width:14px;height:14px;border-radius:50%;background:${co};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .15s"></div>`,iconSize:[19,19],iconAnchor:[9,9]});
+const ic=L.divIcon({className:'si',html:`<div class="marker-pulse" style="width:14px;height:14px;border-radius:50%;background:${co};border:2.5px solid rgba(255,255,255,0.8);box-shadow:0 0 12px ${co}88;cursor:pointer;transition:transform .2s"></div>`,iconSize:[19,19],iconAnchor:[9,9]});
 const m=L.marker([a.lt,a.ln],{icon:ic}).addTo(map);
-m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div><div class="pr">${sr(a.r)} ${a.r} (${a.v} reviews)</div><div class="pp">${a.p}</div><a class="pl" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank">Open in Google Maps →</a>`,{maxWidth:280});
+const prText=a.pr?`<div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fb923c;font-weight:700;margin:6px 0">${a.pr}</div>`:'';
+m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div>${prText}<div class="pr">${a.r?sr(a.r)+' '+a.r+' ('+a.v+' reviews)':''}</div><div class="pp">${a.p||''}</div><a class="pl" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank">Open in Google Maps &rarr;</a>`,{maxWidth:300});
 m.on('click',()=>{document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));const cd=document.getElementById(`cd-${i}`);if(cd){cd.classList.add('sel');cd.scrollIntoView({behavior:'smooth',block:'center'})}});
 mk.push(m)});
-if(f.length>0){const g=L.featureGroup(mk);map.fitBounds(g.getBounds().pad(0.08))}
-}
+if(f.length>0){const g=L.featureGroup(mk);map.fitBounds(g.getBounds().pad(0.08))}}
 
-function go(i){
-const f=gF(),a=f[i];if(!a)return;
+function go(i){const f=gF(),a=f[i];if(!a)return;
 document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));
-document.getElementById(`cd-${i}`).classList.add('sel');
-map.flyTo([a.lt,a.ln],15,{duration:.8});
-if(mk[i])mk[i].openPopup()}
+const card=document.getElementById(`cd-${i}`);if(card)card.classList.add('sel');
+map.flyTo([a.lt,a.ln],15,{duration:.8});if(mk[i])mk[i].openPopup()}
 
 window.fC=fC;window.fT=fT;window.fS=fS;window.go=go;
 document.addEventListener('DOMContentLoaded',init);

@@ -31,10 +31,43 @@ GENERIC_NAME_RE = re.compile(
     re.IGNORECASE
 )
 
+# Patterns for address-only names (just a street address, not a real apartment name)
+ADDRESS_ONLY_RE = re.compile(
+    r'^\d+\s+[\w\s]+(common|street|st|avenue|ave|drive|dr|boulevard|blvd|road|rd|way|lane|ln|court|ct|circle|terrace|place|pl)$',
+    re.IGNORECASE
+)
+
+# Patterns for unit/address range names like "971 1-2", "983 3-4", "27601 1-2-3"
+UNIT_RANGE_RE = re.compile(
+    r'^\d+\s+\d+[-–]\d+([-–]\d+)*$',
+    re.IGNORECASE
+)
+
+# Single letter building names (A Building, E Building, etc.) or directional wing names
+WING_NAME_RE = re.compile(
+    r'^[A-Z]\s+Building$|^(East|West|North|South|Eastridge|Westridge|Northridge|Southridge|E|W|N|S)\s*(?:Building)?$',
+    re.IGNORECASE
+)
+
+# Patterns for sub-building suffixes to strip when collapsing
+SUB_BUILDING_RE = re.compile(
+    r'\s+(Building\s*\d+|Bldg\s*\d+|\d+[-–]\d+|[-–]\s*Building\s*\d+|,\s*Building\s*\d+)\s*$',
+    re.IGNORECASE
+)
+
 EXCLUDE_KEYWORDS = [
     "mobile home", "rv park", "storage", "church", "school", "office",
-    "hotel", "motel", " inn", "parking", "garage",
+    "hotel", "motel", " inn", "parking", "garage", "play area",
+    "recreation room", "laundry", "fitness center", "lounge",
+    "senior citizens center", "commercial building", "security building",
+    "professional building", "residential lounge",
 ]
+
+# Names that are clearly not apartment complexes
+EXACT_EXCLUDE_NAMES = {
+    "alpha epsilon pi", "seneca family of agencies", "ronald mcdonald house",
+    "court 4", "studio 2", "domain 3", "oaks 2",
+}
 
 
 def haversine_km(lat1, lng1, lat2, lng2):
@@ -50,11 +83,85 @@ def is_valid_apartment_name(name):
         return False
     if GENERIC_NAME_RE.match(name.strip()):
         return False
-    name_lower = name.lower()
+    name_lower = name.lower().strip()
+    # Exclude exact match names
+    if name_lower in EXACT_EXCLUDE_NAMES:
+        return False
     for kw in EXCLUDE_KEYWORDS:
         if kw in name_lower:
             return False
+    # Filter address-only names (e.g. "3512 Vision Common", "45188 Ambition St")
+    if ADDRESS_ONLY_RE.match(name.strip()):
+        return False
+    # Filter unit range names (e.g. "971 1-2", "983 3-4")
+    if UNIT_RANGE_RE.match(name.strip()):
+        return False
+    # Filter single-letter building names and directional wing names
+    if WING_NAME_RE.match(name.strip()):
+        return False
     return True
+
+
+def get_base_complex_name(name):
+    """Extract the base complex name by stripping sub-building suffixes.
+    e.g. 'Highland Gardens Building 1' -> 'Highland Gardens'
+         'Solstice Apartments 1-8' -> 'Solstice Apartments'
+         'Kensington Place Apartments, Building 2' -> 'Kensington Place Apartments'
+         'The Enclave Building 5' -> 'The Enclave'
+         'Sunshine Gardens 132' -> 'Sunshine Gardens'
+         'Stanford Gate A' -> 'Stanford Gate'
+         'Miro East Tower' / 'Miro West Tower' -> 'Miro'
+    """
+    stripped = name.strip()
+    # Strip "Building N", "Bldg N", comma-building patterns
+    stripped = SUB_BUILDING_RE.sub('', stripped).strip()
+    # Strip trailing number ranges like "1-8", "9-16", "25-32", "33-36"
+    stripped = re.sub(r'\s+\d+[-–]\d+\s*$', '', stripped).strip()
+    # Strip trailing standalone numbers like "132", "134" (for "Sunshine Gardens 132")
+    stripped = re.sub(r'\s+\d+\s*$', '', stripped).strip()
+    # Strip trailing single letter like "A", "B" (for "Stanford Gate A")
+    stripped = re.sub(r'\s+[A-Z]\s*$', '', stripped).strip()
+    # Strip directional qualifiers for tower names like "Miro East Tower", "Miro West Tower"
+    stripped = re.sub(r'\s+(East|West|North|South)\s+(Tower|Building|Wing)\s*$', '', stripped, flags=re.IGNORECASE).strip()
+    # Strip "- Building N" pattern
+    stripped = re.sub(r'\s*[-–]\s*Building\s*\d+\s*$', '', stripped, flags=re.IGNORECASE).strip()
+    return stripped
+
+
+def collapse_sub_buildings(apartments):
+    """Collapse sub-buildings of the same complex into a single entry.
+    Keep the entry with the most reviews, or highest rating if tied.
+    """
+    from collections import defaultdict
+
+    # Group by (base_name_lower, city)
+    groups = defaultdict(list)
+    for apt in apartments:
+        base = get_base_complex_name(apt["name"])
+        key = (base.lower(), apt.get("city", "").lower())
+        groups[key].append((base, apt))
+
+    collapsed = []
+    for key, entries in groups.items():
+        if len(entries) == 1:
+            collapsed.append(entries[0][1])
+        else:
+            # Multiple sub-buildings: pick the best one (most reviews, then highest rating)
+            entries.sort(key=lambda x: (x[1].get("reviews", 0), x[1].get("rating", 0)), reverse=True)
+            best_base_name, best = entries[0]
+            # Use the base complex name instead of the sub-building name
+            best = dict(best)  # copy
+            best["name"] = best_base_name
+            # Compute average lat/lng from all entries for better map placement
+            lats = [e[1]["lat"] for e in entries if e[1].get("lat")]
+            lngs = [e[1]["lng"] for e in entries if e[1].get("lng")]
+            if lats and lngs:
+                best["lat"] = round(sum(lats) / len(lats), 6)
+                best["lng"] = round(sum(lngs) / len(lngs), 6)
+            collapsed.append(best)
+            print(f"  Collapsed {len(entries)} entries for '{best_base_name}' in {entries[0][1].get('city', '?')}")
+
+    return collapsed
 
 
 def get_center(element):
@@ -240,6 +347,17 @@ def discover():
 
     # Merge: existing Google data + new OSM data
     merged = existing + new_list
+
+    # Post-processing: collapse sub-buildings and clean up
+    print(f"\nPost-processing: collapsing sub-buildings...")
+    before_count = len(merged)
+    merged = collapse_sub_buildings(merged)
+    print(f"  {before_count} -> {len(merged)} after collapsing sub-buildings")
+
+    # Second pass: re-validate names after collapsing
+    merged = [a for a in merged if is_valid_apartment_name(a.get("name", ""))]
+    print(f"  {len(merged)} after re-validating names")
+
     merged.sort(key=lambda a: (a.get("city", ""), a.get("name", "")))
 
     # Save
