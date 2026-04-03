@@ -244,6 +244,10 @@ else if(S.s==='name')l.sort((a,b)=>a.n.localeCompare(b.n));
 else if(S.s==='price'){l.sort((a,b)=>{const pa=a.pr?parseInt(a.pr.replace(/[^0-9]/g,'')):999999;const pb=b.pr?parseInt(b.pr.replace(/[^0-9]/g,'')):999999;return pa-pb})}
 return l}
 
+function mapsUrl(a){
+if(a.id)return`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.n)}&query_place_id=${a.id}`;
+return`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.n+', '+a.c+', CA')}`}
+
 function sr(r){if(!r)return'';const f=Math.floor(r),h=r%1>=.3;return"\u2605".repeat(f)+(h?"\u00BD":"")+"\u2606".repeat(5-f-(h?1:0))}
 
 function tt(t){
@@ -268,7 +272,7 @@ return`<div class="ac" id="cd-${i}" onclick="go(${i})" style="animation-delay:${
 ${prBadge?`<div>${prBadge}</div>`:''}</div>
 <div class="at"><span class="tg" style="background:${co}14;color:${co};border:1px solid ${co}30">${a.c}</span>${tt(a.t)}${ratingHtml}</div>
 ${phoneHtml}
-<div class="lk"><a class="gm" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank" rel="noopener">Maps <span class="arrow">&rarr;</span></a>${wsLink}</div></div>`}).join('');
+<div class="lk"><a class="gm" href="${mapsUrl(a)}" target="_blank" rel="noopener">Maps <span class="arrow">&rarr;</span></a>${wsLink}</div></div>`}).join('');
 
 mk.forEach(m=>map.removeLayer(m));mk=[];
 f.forEach((a,i)=>{
@@ -276,7 +280,7 @@ const co=CC[a.c]||'#f97316';
 const ic=L.divIcon({className:'si',html:`<div class="marker-pulse" style="width:14px;height:14px;border-radius:50%;background:${co};border:2.5px solid rgba(255,255,255,0.8);box-shadow:0 0 12px ${co}88;cursor:pointer;transition:transform .2s"></div>`,iconSize:[19,19],iconAnchor:[9,9]});
 const m=L.marker([a.lt,a.ln],{icon:ic}).addTo(map);
 const prText=a.pr?`<div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fb923c;font-weight:700;margin:6px 0">${a.pr}</div>`:'';
-m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div>${prText}<div class="pr">${a.r?sr(a.r)+' '+a.r+' ('+a.v+' reviews)':''}</div><div class="pp">${a.p||''}</div><a class="pl" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank">Open in Google Maps &rarr;</a>`,{maxWidth:300});
+m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div>${prText}<div class="pr">${a.r?sr(a.r)+' '+a.r+' ('+a.v+' reviews)':''}</div><div class="pp">${a.p||''}</div><a class="pl" href="${mapsUrl(a)}" target="_blank">Open in Google Maps &rarr;</a>`,{maxWidth:300});
 m.on('click',()=>{document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));const cd=document.getElementById(`cd-${i}`);if(cd){cd.classList.add('sel');cd.scrollIntoView({behavior:'smooth',block:'center'})}});
 mk.push(m)});
 if(f.length>0){const g=L.featureGroup(mk);map.fitBounds(g.getBounds().pad(0.08))}}
