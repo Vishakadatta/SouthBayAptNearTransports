@@ -112,6 +112,20 @@
     "price_1br": null
   },
   {
+    "name": "Apartments",
+    "address": "",
+    "city": "Fremont",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.562235,
+    "lng": -121.963414,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Archstone Fremont Center",
     "address": "39410 Civic Center Dr",
     "city": "Fremont",
@@ -322,6 +336,20 @@
     "price_1br": null
   },
   {
+    "name": "Northridge",
+    "address": "",
+    "city": "Fremont",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.562436,
+    "lng": -121.964054,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Parkway Towers and Townhouses",
     "address": "3909 Stevenson Boulevard",
     "city": "Fremont",
@@ -359,6 +387,20 @@
     "transit": "BART",
     "lat": 37.534408,
     "lng": -121.963273,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Southridge",
+    "address": "",
+    "city": "Fremont",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.561819,
+    "lng": -121.963328,
     "place_id": "",
     "website": null,
     "price_1br": null
@@ -406,6 +448,20 @@
     "price_1br": null
   },
   {
+    "name": "Westridge",
+    "address": "",
+    "city": "Fremont",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.561591,
+    "lng": -121.964045,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "eaves Fremont",
     "address": "231 Woodcreek Common",
     "city": "Fremont",
@@ -416,6 +472,174 @@
     "lat": 37.4936,
     "lng": -121.9274,
     "place_id": "ChIJH9lNBV3Gj4ARaiQ3deDS0Og",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "27601 1-2-3",
+    "address": "27601 Tyrrell Avenue",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633684,
+    "lng": -122.072201,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "971 1-2",
+    "address": "971 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633567,
+    "lng": -122.072347,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "971 3-4-5",
+    "address": "971 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633745,
+    "lng": -122.072492,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "971 6-7",
+    "address": "971 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633545,
+    "lng": -122.072585,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "977 1-2",
+    "address": "977 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633537,
+    "lng": -122.072742,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "977 3-4-5",
+    "address": "977 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633711,
+    "lng": -122.072893,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "977 6-7",
+    "address": "977 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633516,
+    "lng": -122.072986,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "983 1-2",
+    "address": "983 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633497,
+    "lng": -122.073138,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "983 3-4",
+    "address": "983 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633697,
+    "lng": -122.073161,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "983 5-6-7",
+    "address": "983 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633672,
+    "lng": -122.073457,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "983 8-9-10",
+    "address": "983 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633436,
+    "lng": -122.073428,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "987 1-2",
+    "address": "987 Glad Tidings Way",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.633454,
+    "lng": -122.073695,
+    "place_id": "",
     "website": null,
     "price_1br": null
   },
@@ -490,6 +714,48 @@
     "price_1br": null
   },
   {
+    "name": "Greenleaf Apartments 1-8",
+    "address": "27495 Manon Avenue",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.636132,
+    "lng": -122.069776,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Greenleaf Apartments 17-23",
+    "address": "27495 Manon Avenue",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.635802,
+    "lng": -122.070414,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Greenleaf Apartments 9-16",
+    "address": "27495 Manon Avenue",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.635886,
+    "lng": -122.070509,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Legacy at Hayward",
     "address": "28168 Mission Blvd",
     "city": "Hayward",
@@ -501,6 +767,34 @@
     "lng": -122.0558,
     "place_id": "ChIJoyEvHpCVj4ARlnZGasfcZmM",
     "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Lincoln Landing Building A",
+    "address": "22335 Foothill Boulevard",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.677483,
+    "lng": -122.084426,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Lincoln Landing Building B",
+    "address": "22271 Foothill Boulevard",
+    "city": "Hayward",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART",
+    "lat": 37.679029,
+    "lng": -122.085748,
+    "place_id": "",
+    "website": "https://www.lincolnlandingapartments.com",
     "price_1br": null
   },
   {
@@ -728,6 +1022,20 @@
     "price_1br": null
   },
   {
+    "name": "Gideon",
+    "address": "",
+    "city": "Milpitas",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/VTA",
+    "lat": 37.410635,
+    "lng": -121.898966,
+    "place_id": "",
+    "website": "https://livethefields.com/gideon/",
+    "price_1br": null
+  },
+  {
     "name": "Gideon at The Fields",
     "address": "150 Market St",
     "city": "Milpitas",
@@ -766,6 +1074,20 @@
     "lat": 37.4123,
     "lng": -121.9023,
     "place_id": "ChIJ7U1pqErJj4AR1oHytisRxLY",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Lantana",
+    "address": "720 Montague Expressway",
+    "city": "Milpitas",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/VTA",
+    "lat": 37.410983,
+    "lng": -121.888872,
+    "place_id": "",
     "website": null,
     "price_1br": null
   },
@@ -910,6 +1232,20 @@
     "price_1br": null
   },
   {
+    "name": "Avalon",
+    "address": "1911 California Street",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.396678,
+    "lng": -122.094739,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Avalon Mountain View",
     "address": "1600 Villa St",
     "city": "Mountain View",
@@ -934,6 +1270,20 @@
     "lat": 37.3992,
     "lng": -122.1071,
     "place_id": "ChIJm6QDA5iwj4ARCZYf8k6JiOc",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Avant",
+    "address": "4041 El Camino Way",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.415812,
+    "lng": -122.127,
+    "place_id": "",
     "website": null,
     "price_1br": null
   },
@@ -1036,6 +1386,34 @@
     "price_1br": null
   },
   {
+    "name": "Colonnade",
+    "address": "4750 El Camino Real",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": "+1-650-559-8500",
+    "transit": "Caltrain",
+    "lat": 37.399453,
+    "lng": -122.111877,
+    "place_id": "",
+    "website": "https://colonnadeapartments.stanford.edu/",
+    "price_1br": null
+  },
+  {
+    "name": "Crown",
+    "address": "2010 California Street",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.398367,
+    "lng": -122.097208,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Del Medio Manor",
     "address": "141 Del Medio Avenue",
     "city": "Mountain View",
@@ -1045,6 +1423,20 @@
     "transit": "Caltrain",
     "lat": 37.408674,
     "lng": -122.111026,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Domizile",
+    "address": "550 Ortega Avenue",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.398937,
+    "lng": -122.106264,
     "place_id": "",
     "website": null,
     "price_1br": null
@@ -1428,6 +1820,20 @@
     "price_1br": null
   },
   {
+    "name": "King",
+    "address": "2000 California Street",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.39816,
+    "lng": -122.096754,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Ladera Apartments",
     "address": "398 Ortega Ave",
     "city": "Mountain View",
@@ -1526,6 +1932,20 @@
     "price_1br": null
   },
   {
+    "name": "Mari-Court",
+    "address": "586 Mariposa Avenue",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.39276,
+    "lng": -122.091168,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Mariposa Arms",
     "address": "551 Mariposa Avenue",
     "city": "Mountain View",
@@ -1563,6 +1983,34 @@
     "transit": "Caltrain",
     "lat": 37.396336,
     "lng": -122.09491,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Monticello",
+    "address": "1930 Mount Vernon Court",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.396321,
+    "lng": -122.09561,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Montpelier",
+    "address": "1935 Mount Vernon Court",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.395907,
+    "lng": -122.095865,
     "place_id": "",
     "website": null,
     "price_1br": null
@@ -1733,6 +2181,20 @@
     "lng": -122.110163,
     "place_id": "",
     "website": "https://charitieshousing.org/san-antonio-place/",
+    "price_1br": null
+  },
+  {
+    "name": "Sharron",
+    "address": "2050 California Street",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.399026,
+    "lng": -122.09897,
+    "place_id": "",
+    "website": null,
     "price_1br": null
   },
   {
@@ -2072,6 +2534,20 @@
     "price_1br": null
   },
   {
+    "name": "Willow",
+    "address": "1940 California Street",
+    "city": "Mountain View",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.397644,
+    "lng": -122.095388,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Windsor Apartments",
     "address": "1900 California Street",
     "city": "Mountain View",
@@ -2333,6 +2809,20 @@
     "transit": "Caltrain",
     "lat": 37.450841,
     "lng": -122.158214,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Mirrielees",
+    "address": "",
+    "city": "Palo Alto",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.423436,
+    "lng": -122.159708,
     "place_id": "",
     "website": null,
     "price_1br": null
@@ -2601,7 +3091,7 @@
     "lng": -121.886154,
     "place_id": "",
     "website": "https://27north.com/",
-    "price_1br": 975
+    "price_1br": null
   },
   {
     "name": "360 Residences",
@@ -2615,7 +3105,7 @@
     "lng": -121.886941,
     "place_id": "",
     "website": "http://www.360residences.com/",
-    "price_1br": 2309
+    "price_1br": null
   },
   {
     "name": "45 North",
@@ -2786,6 +3276,20 @@
     "price_1br": null
   },
   {
+    "name": "Axis",
+    "address": "",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.334761,
+    "lng": -121.895728,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "Barcelona Apartments",
     "address": "15 Hawthorne Way",
     "city": "San Jose",
@@ -2870,6 +3374,20 @@
     "price_1br": null
   },
   {
+    "name": "Centerra",
+    "address": "77 North Almaden Avenue",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.335915,
+    "lng": -121.895321,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
     "name": "City Heights",
     "address": "175 West Saint James Street",
     "city": "San Jose",
@@ -2881,6 +3399,20 @@
     "lng": -121.895648,
     "place_id": "",
     "website": "http://sanjosecityheights.com/",
+    "price_1br": null
+  },
+  {
+    "name": "Colonnade",
+    "address": "201 South 4th Street",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.333194,
+    "lng": -121.884892,
+    "place_id": "",
+    "website": null,
     "price_1br": null
   },
   {
@@ -3024,6 +3556,20 @@
     "price_1br": null
   },
   {
+    "name": "Exhibit",
+    "address": "535 North 7th Street",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.348179,
+    "lng": -121.891252,
+    "place_id": "",
+    "website": "https://www.exhibitjtown.com/",
+    "price_1br": null
+  },
+  {
     "name": "Fama Apartments",
     "address": "121 North 8th Street",
     "city": "San Jose",
@@ -3161,7 +3707,7 @@
     "lng": -121.894707,
     "place_id": "",
     "website": "https://firstcommunityhousing.org/japan-town-senior-apartments",
-    "price_1br": 1567
+    "price_1br": null
   },
   {
     "name": "Jeanne d\u2019Arc Manor",
@@ -3276,6 +3822,20 @@
     "price_1br": null
   },
   {
+    "name": "Marquis",
+    "address": "",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/VTA",
+    "lat": 37.356087,
+    "lng": -121.893277,
+    "place_id": "",
+    "website": "http://www.liveatmarquis.com/",
+    "price_1br": null
+  },
+  {
     "name": "Masson Apartments",
     "address": "",
     "city": "San Jose",
@@ -3301,7 +3861,7 @@
     "lng": -121.914639,
     "place_id": "",
     "website": "http://www.meridianatmidtown.com/",
-    "price_1br": 2317
+    "price_1br": null
   },
   {
     "name": "Merrill Gardens at Willow Glen",
@@ -3343,6 +3903,20 @@
     "lng": -121.89375,
     "place_id": "",
     "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Mio",
+    "address": "688 North 7th Street",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.351753,
+    "lng": -121.893176,
+    "place_id": "",
+    "website": "https://essexapartmenthomes.com/apartments/san-jose/mio",
     "price_1br": null
   },
   {
@@ -3483,7 +4057,7 @@
     "lng": -121.892217,
     "place_id": "",
     "website": "https://essexapartmenthomes.com/california/san-francisco-bay-area/san-jose/one-south-market",
-    "price_1br": 1200
+    "price_1br": null
   },
   {
     "name": "Orlo Apartments",
@@ -3791,7 +4365,35 @@
     "lng": -121.914251,
     "place_id": "",
     "website": "https://sonnethill.com/",
-    "price_1br": 3475
+    "price_1br": null
+  },
+  {
+    "name": "Sparq",
+    "address": "5 East Reed Street",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.327573,
+    "lng": -121.883732,
+    "place_id": "",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Sparta505",
+    "address": "505 East Santa Clara Street",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.341715,
+    "lng": -121.879879,
+    "place_id": "",
+    "website": "https://sparta505.com/",
+    "price_1br": null
   },
   {
     "name": "Spartan Manor",
@@ -4113,7 +4715,7 @@
     "lng": -121.886189,
     "place_id": "",
     "website": "https://thetaftapts.com/",
-    "price_1br": 1000
+    "price_1br": null
   },
   {
     "name": "The Thomas Victoria Building",
@@ -4242,6 +4844,20 @@
     "price_1br": null
   },
   {
+    "name": "Vespaio",
+    "address": "130 Stockton Avenue",
+    "city": "San Jose",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "BART/Caltrain/VTA",
+    "lat": 37.333008,
+    "lng": -121.904163,
+    "place_id": "",
+    "website": "https://vespaio.thehudsoncompanies.net/",
+    "price_1br": null
+  },
+  {
     "name": "Villa Fontanas",
     "address": "1445 Fruitdale Avenue",
     "city": "San Jose",
@@ -4336,6 +4952,20 @@
     "lat": 37.4089,
     "lng": -121.964,
     "place_id": "ChIJxXFU1hrJj4ARDSaenf25BJE",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Alpine",
+    "address": "",
+    "city": "Santa Clara",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.351603,
+    "lng": -121.980243,
+    "place_id": "",
     "website": null,
     "price_1br": null
   },
@@ -4476,6 +5106,20 @@
     "lat": 37.3287,
     "lng": -121.9506,
     "place_id": "ChIJ9Z8K65bLj4ARDI1mc9mG0Q4",
+    "website": null,
+    "price_1br": null
+  },
+  {
+    "name": "Sof\u00eda",
+    "address": "3580",
+    "city": "Santa Clara",
+    "rating": 0,
+    "reviews": 0,
+    "phone": null,
+    "transit": "Caltrain",
+    "lat": 37.375928,
+    "lng": -121.994796,
+    "place_id": "",
     "website": null,
     "price_1br": null
   },

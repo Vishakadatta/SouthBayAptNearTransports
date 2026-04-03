@@ -10,6 +10,7 @@ Falls back gracefully — website + phone are always kept even if price can't be
 """
 
 import json
+import os
 import re
 import time
 import requests
@@ -121,6 +122,7 @@ def city_from_address(address):
     cities = [
         "Milpitas", "Fremont", "Hayward", "Santa Clara", "San Jose",
         "Mountain View", "Sunnyvale", "Palo Alto", "Menlo Park",
+        "Union City", "Cupertino", "Campbell", "Los Gatos",
     ]
     for city in cities:
         if city.lower() in address.lower():
@@ -130,12 +132,12 @@ def city_from_address(address):
 
 def scrape_all():
     # Load discovered data
-    with open("data/discovered.json") as f:
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
+    with open(os.path.join(data_dir, "discovered.json")) as f:
         apartments = json.load(f)
 
     print(f"Scraping prices for {len(apartments)} apartments...\n")
 
-    results = []
     found_count = 0
 
     for i, apt in enumerate(apartments):
@@ -154,27 +156,28 @@ def scrape_all():
         else:
             print(f"  [{i+1}/{len(apartments)}] {apt['name']} — no website")
 
-        results.append({
-            "name": apt["name"],
-            "address": apt.get("address", ""),
-            "city": city_from_address(apt.get("address", "")),
-            "rating": apt.get("rating"),
-            "reviews": apt.get("reviews", 0),
-            "phone": apt.get("phone"),
-            "transit": apt.get("transit", ""),
-            "lat": apt["lat"],
-            "lng": apt["lng"],
-            "place_id": apt["place_id"],
-            "website": website,
-            "price_1br": price,
-        })
+        apt["price_1br"] = price
+
+        # Fix city if missing
+        if not apt.get("city") or apt["city"] == "Unknown":
+            apt["city"] = city_from_address(apt.get("address", ""))
+
+        # Add rating/reviews placeholders if not present (OSM data)
+        if "rating" not in apt:
+            apt["rating"] = 0
+        if "reviews" not in apt:
+            apt["reviews"] = 0
+        # Ensure place_id exists (use empty string for OSM-sourced data)
+        if "place_id" not in apt:
+            apt["place_id"] = ""
 
     # Save final data
-    with open("data/apartments.json", "w") as f:
-        json.dump(results, f, indent=2)
+    out_path = os.path.join(data_dir, "apartments.json")
+    with open(out_path, "w") as f:
+        json.dump(apartments, f, indent=2)
 
     print(f"\nDone! {found_count}/{len(apartments)} prices found")
-    print(f"Saved to data/apartments.json")
+    print(f"Saved to {out_path}")
 
 
 if __name__ == "__main__":

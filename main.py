@@ -2,12 +2,11 @@
 South Bay Transit Apartments — Full Pipeline
 
 Runs all three phases:
-  1. Discover apartments near every transit station (Google Places API)
+  1. Discover apartments near every transit station (Overpass API — free, no key needed)
   2. Scrape pricing from apartment websites
   3. Build the HTML dashboard
 
 Usage:
-    export GOOGLE_PLACES_API_KEY="your-key-here"
     python main.py
 """
 
@@ -25,17 +24,18 @@ from build_dashboard import build
 def main():
     print("=" * 60)
     print("SOUTH BAY TRANSIT APARTMENTS — DATA PIPELINE")
+    print("Using Overpass API (OpenStreetMap) — no API key needed")
     print("=" * 60)
 
-    print("\n📍 PHASE 1: Discovering apartments near transit stations...")
+    print("\nPHASE 1: Discovering apartments near transit stations...")
     print("-" * 60)
     discover()
 
-    print("\n\n💰 PHASE 2: Scraping pricing from websites...")
+    print("\n\nPHASE 2: Scraping pricing from websites...")
     print("-" * 60)
     scrape_all()
 
-    print("\n\n🗺️  PHASE 3: Building HTML dashboard...")
+    print("\n\nPHASE 3: Building HTML dashboard...")
     print("-" * 60)
     build()
 

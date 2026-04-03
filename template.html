@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>South Bay Transit Apartments</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--sf:#111827;--sf2:#1a2234;--bd:#1e293b;--tx:#e2e8f0;--mt:#64748b;--ac:#f97316;--bart:#3b82f6;--cal:#10b981;--vta:#eab308}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;height:100vh}
+.layout{display:flex;height:100vh}
+.sidebar{width:400px;min-width:400px;height:100vh;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;z-index:1000}
+.sh{padding:16px 20px 12px;border-bottom:1px solid var(--bd);background:linear-gradient(135deg,#0f172a,#1a1030)}
+.sh h1{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(90deg,#f97316,#ef4444,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sh .sub{font-size:11px;color:var(--mt);margin-top:3px}
+.filters{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:7px}
+.sb{background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:8px 11px;color:var(--tx);font-size:13px;font-family:'Outfit',sans-serif;outline:none;width:100%;transition:border-color .2s}
+.sb:focus{border-color:var(--ac)}
+.fr{display:flex;gap:5px;flex-wrap:wrap}
+.fb{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:4px 9px;color:var(--mt);font-size:10px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.fb:hover{border-color:var(--ac);color:var(--tx)}
+.fb.on{background:rgba(249,115,22,.15);border-color:var(--ac);color:var(--ac)}
+.fb.bt.on{background:rgba(59,130,246,.15);border-color:var(--bart);color:var(--bart)}
+.fb.ct.on{background:rgba(16,185,129,.15);border-color:var(--cal);color:var(--cal)}
+.fb.vt.on{background:rgba(234,179,8,.15);border-color:var(--vta);color:var(--vta)}
+.cb{padding:5px 14px;font-size:11px;color:var(--mt);border-bottom:1px solid var(--bd)}
+.al{flex:1;overflow-y:auto}
+.al::-webkit-scrollbar{width:4px}
+.al::-webkit-scrollbar-track{background:var(--sf)}
+.al::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.ac{padding:12px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .12s}
+.ac:hover{background:var(--sf2)}
+.ac.sel{background:rgba(249,115,22,.07);border-left:3px solid var(--ac)}
+.an{font-size:13px;font-weight:600;color:#f1f5f9;margin-bottom:2px}
+.aa{font-size:11px;color:var(--mt);margin-bottom:5px}
+.at{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.tg{font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;display:inline-block}
+.st{color:#f59e0b;font-size:11px;letter-spacing:.3px}
+.rt{font-size:10px;color:var(--mt)}
+.ap{font-size:10px;color:var(--mt);margin-top:4px}
+.ap a{color:#94a3b8;text-decoration:none}
+.lk{margin-top:5px;display:flex;gap:5px}
+.lk a{font-size:9px;font-weight:600;padding:3px 7px;border-radius:4px;text-decoration:none;background:rgba(249,115,22,.12);color:var(--ac);border:1px solid rgba(249,115,22,.25);transition:background .15s}
+.lk a:hover{background:rgba(249,115,22,.25)}
+.mc{flex:1;position:relative}
+#map{width:100%;height:100%}
+.leaflet-popup-content-wrapper{background:var(--sf)!important;color:var(--tx)!important;border-radius:10px!important;border:1px solid var(--bd)!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important}
+.leaflet-popup-tip{background:var(--sf)!important}
+.leaflet-popup-content{margin:12px 14px!important;font-family:'Outfit',sans-serif!important;line-height:1.5!important}
+.pn{font-weight:600;font-size:14px;margin-bottom:3px}
+.pa{font-size:12px;color:var(--mt);margin-bottom:4px}
+.pr{font-size:12px;color:#f59e0b}
+.pp{font-size:11px;color:var(--mt);margin-top:3px}
+.pl{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;color:var(--ac);text-decoration:none}
+.si{background:none;border:none}
+.legend{position:absolute;bottom:20px;left:20px;z-index:1000;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--mt);line-height:2}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:100%;height:45vh}.mc{height:55vh}}
+</style>
+</head>
+<body>
+<div class="layout">
+<div class="sidebar">
+<div class="sh">
+<h1>SOUTH BAY TRANSIT APTS</h1>
+<div class="sub"><span id="tc">75</span> apartments • Leaflet + OpenStreetMap • Zero API keys</div>
+</div>
+<div class="filters">
+<input type="text" class="sb" id="search" placeholder="Search name, address, or city...">
+<div class="fr" id="cf"></div>
+<div class="fr" id="tf"></div>
+<div class="fr" id="sf"></div>
+</div>
+<div class="cb" id="cb">Showing 75 of 75</div>
+<div class="al" id="al"></div>
+</div>
+<div class="mc">
+<div id="map"></div>
+<div class="legend">
+<div><span class="legend-dot" style="background:var(--bart)"></span> BART station</div>
+<div><span class="legend-dot" style="background:var(--cal)"></span> Caltrain station</div>
+<div><span class="legend-dot" style="background:#a855f7"></span> BART + Caltrain</div>
+<div style="margin-top:4px;border-top:1px solid var(--bd);padding-top:4px">Colored dots = apartments by city</div>
+</div>
+</div>
+</div>
+<script>
+/* __APARTMENT_DATA__ */
+
+const CC={Milpitas:"#ef4444",Fremont:"#3b82f6",Hayward:"#8b5cf6","Santa Clara":"#10b981","San Jose":"#f97316","S. San Jose":"#f97316","Mountain View":"#06b6d4",Sunnyvale:"#eab308","Palo Alto":"#ec4899","Menlo Park":"#a855f7","Union City":"#14b8a6"};
+const CI=["Milpitas","Fremont","Hayward","Union City","Santa Clara","San Jose","S. San Jose","Mountain View","Sunnyvale","Palo Alto","Menlo Park"];
+const ST=[
+{n:"Hayward BART",lt:37.6700,ln:-122.0870,t:"b"},{n:"South Hayward BART",lt:37.6348,ln:-122.0571,t:"b"},
+{n:"Union City BART",lt:37.5910,ln:-122.0175,t:"b"},{n:"Fremont BART",lt:37.5574,ln:-121.9764,t:"b"},
+{n:"Warm Springs BART",lt:37.5024,ln:-121.9395,t:"b"},{n:"Milpitas BART",lt:37.4104,ln:-121.8910,t:"b"},
+{n:"Berryessa BART",lt:37.3688,ln:-121.8495,t:"b"},
+{n:"Alum Rock BART",lt:37.3660,ln:-121.8293,t:"b"},{n:"Downtown SJ BART",lt:37.3382,ln:-121.8863,t:"b"},
+{n:"Diridon BART",lt:37.3297,ln:-121.9020,t:"b"},{n:"Santa Clara BART",lt:37.3531,ln:-121.9369,t:"b"},
+{n:"San Jose Diridon",lt:37.3297,ln:-121.9020,t:"x"},{n:"Santa Clara Caltrain",lt:37.3531,ln:-121.9369,t:"c"},
+{n:"Lawrence Caltrain",lt:37.3708,ln:-121.9970,t:"c"},{n:"Sunnyvale Caltrain",lt:37.3783,ln:-122.0308,t:"c"},
+{n:"Mountain View Caltrain",lt:37.3946,ln:-122.0764,t:"c"},{n:"San Antonio Caltrain",lt:37.4069,ln:-122.1070,t:"c"},
+{n:"California Ave Caltrain",lt:37.4292,ln:-122.1422,t:"c"},{n:"Palo Alto Caltrain",lt:37.4432,ln:-122.1649,t:"c"},
+{n:"Menlo Park Caltrain",lt:37.4547,ln:-122.1823,t:"c"},
+{n:"VTA Great Mall",lt:37.4153,ln:-121.8985,t:"v"},{n:"VTA Hostetter",lt:37.3877,ln:-121.8772,t:"v"},
+{n:"VTA Civic Center",lt:37.3300,ln:-121.8889,t:"v"},{n:"VTA Convention Ctr",lt:37.3298,ln:-121.8861,t:"v"},
+{n:"VTA Santa Teresa",lt:37.2539,ln:-121.8027,t:"v"},{n:"VTA Cottle",lt:37.2634,ln:-121.7969,t:"v"},
+{n:"VTA Snell",lt:37.2700,ln:-121.8008,t:"v"},{n:"VTA Branham",lt:37.2820,ln:-121.8278,t:"v"},
+{n:"VTA Ohlone",lt:37.2897,ln:-121.8429,t:"v"},{n:"VTA Blossom Hill",lt:37.2527,ln:-121.7977,t:"v"},
+{n:"VTA Capitol",lt:37.2875,ln:-121.8363,t:"v"},{n:"VTA Curtner",lt:37.3097,ln:-121.8867,t:"v"},
+{n:"VTA Tamien",lt:37.3118,ln:-121.8834,t:"v"},{n:"VTA Baypointe",lt:37.4019,ln:-121.9130,t:"v"},
+{n:"VTA Lick Mill",lt:37.3932,ln:-121.9265,t:"v"},{n:"VTA Old Ironsides",lt:37.3893,ln:-121.9502,t:"v"},
+{n:"VTA Great America",lt:37.4066,ln:-121.9766,t:"v"},{n:"VTA Reamwood",lt:37.3982,ln:-121.9471,t:"v"},
+];
+
+let S={c:"All",t:"All",s:"rating",q:""},map,mk=[],sel=-1;
+
+function init(){
+map=L.map('map',{zoomControl:false}).setView([37.42,-121.98],11);
+L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+subdomains:'abcd',maxZoom:19}).addTo(map);
+
+ST.forEach(s=>{
+const cl=s.t==='b'?'#3b82f6':s.t==='c'?'#10b981':s.t==='v'?'#eab308':'#a855f7';
+const ic=L.divIcon({className:'si',html:`<div style="width:10px;height:10px;border-radius:50%;background:${cl};border:2px solid ${cl}44;box-shadow:0 0 8px ${cl}55;opacity:.7"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
+L.marker([s.lt,s.ln],{icon:ic}).addTo(map).bindTooltip(s.n,{permanent:false,direction:'top',offset:[0,-8]});
+});
+
+const cf=document.getElementById('cf');
+cf.innerHTML=`<button class="fb on" onclick="fC('All')">All</button>`+CI.map(c=>`<button class="fb" onclick="fC('${c}')">${c}</button>`).join('');
+const tf=document.getElementById('tf');
+tf.innerHTML=`<button class="fb on" onclick="fT('All')">All Transit</button><button class="fb bt" onclick="fT('BART')">BART</button><button class="fb ct" onclick="fT('Caltrain')">Caltrain</button><button class="fb vt" onclick="fT('VTA')">VTA</button>`;
+const sf=document.getElementById('sf');
+sf.innerHTML=`<button class="fb on" data-s="rating" onclick="fS('rating')">Rating ↓</button><button class="fb" data-s="reviews" onclick="fS('reviews')">Reviews ↓</button><button class="fb" data-s="name" onclick="fS('name')">A-Z</button>`;
+document.getElementById('search').addEventListener('input',e=>{S.q=e.target.value;render()});
+render();
+}
+
+function fC(v){S.c=v;document.getElementById('cf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All':x===v)});render()}
+function fT(v){S.t=v;document.getElementById('tf').querySelectorAll('.fb').forEach(b=>{const x=b.textContent.trim();b.classList.toggle('on',v==='All'?x==='All Transit':x===v)});render()}
+function fS(v){S.s=v;document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===v));render()}
+
+function gF(){
+let l=D.filter(a=>{
+if(S.c!=='All'&&a.c!==S.c)return false;
+if(S.t!=='All'&&!a.t.includes(S.t))return false;
+if(S.q){const q=S.q.toLowerCase();if(!a.n.toLowerCase().includes(q)&&!a.a.toLowerCase().includes(q)&&!a.c.toLowerCase().includes(q))return false}
+return true});
+if(S.s==='rating')l.sort((a,b)=>b.r-a.r);
+else if(S.s==='reviews')l.sort((a,b)=>b.v-a.v);
+else if(S.s==='name')l.sort((a,b)=>a.n.localeCompare(b.n));
+return l}
+
+function sr(r){const f=Math.floor(r),h=r%1>=.3;return"★".repeat(f)+(h?"½":"")+"☆".repeat(5-f-(h?1:0))}
+function tt(t){if(t.includes("BART")&&t.includes("Caltrain"))return'<span class="tg" style="background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)">BART/Caltrain</span>';if(t.includes("BART"))return'<span class="tg" style="background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)">BART</span>';if(t==="VTA")return'<span class="tg" style="background:rgba(234,179,8,.12);color:#facc15;border:1px solid rgba(234,179,8,.25)">VTA</span>';return'<span class="tg" style="background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)">Caltrain</span>'}
+
+function render(){
+const f=gF();sel=-1;
+document.getElementById('cb').textContent=`Showing ${f.length} of ${D.length}`;
+document.getElementById('tc').textContent=D.length;
+const al=document.getElementById('al');
+al.innerHTML=f.map((a,i)=>{const co=CC[a.c]||'#f97316';return`<div class="ac" id="cd-${i}" onclick="go(${i})"><div class="an">${a.n}</div><div class="aa">${a.a}, ${a.c}</div><div class="at"><span class="tg" style="background:${co}18;color:${co};border:1px solid ${co}40">${a.c}</span>${tt(a.t)}<span class="st">${sr(a.r)}</span><span class="rt">${a.r} (${a.v})</span></div><div class="ap"><a href="tel:${a.p}">${a.p}</a></div><div class="lk"><a href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank" rel="noopener">Google Maps →</a></div></div>`}).join('');
+
+mk.forEach(m=>map.removeLayer(m));mk=[];
+f.forEach((a,i)=>{
+const co=CC[a.c]||'#f97316';
+const ic=L.divIcon({className:'si',html:`<div style="width:14px;height:14px;border-radius:50%;background:${co};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .15s"></div>`,iconSize:[19,19],iconAnchor:[9,9]});
+const m=L.marker([a.lt,a.ln],{icon:ic}).addTo(map);
+m.bindPopup(`<div class="pn">${a.n}</div><div class="pa">${a.a}, ${a.c}</div><div class="pr">${sr(a.r)} ${a.r} (${a.v} reviews)</div><div class="pp">${a.p}</div><a class="pl" href="https://www.google.com/maps/search/?api=1&query=${a.lt},${a.ln}" target="_blank">Open in Google Maps →</a>`,{maxWidth:280});
+m.on('click',()=>{document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));const cd=document.getElementById(`cd-${i}`);if(cd){cd.classList.add('sel');cd.scrollIntoView({behavior:'smooth',block:'center'})}});
+mk.push(m)});
+if(f.length>0){const g=L.featureGroup(mk);map.fitBounds(g.getBounds().pad(0.08))}
+}
+
+function go(i){
+const f=gF(),a=f[i];if(!a)return;
+document.querySelectorAll('.ac').forEach(c=>c.classList.remove('sel'));
+document.getElementById(`cd-${i}`).classList.add('sel');
+map.flyTo([a.lt,a.ln],15,{duration:.8});
+if(mk[i])mk[i].openPopup()}
+
+window.fC=fC;window.fT=fT;window.fS=fS;window.go=go;
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
