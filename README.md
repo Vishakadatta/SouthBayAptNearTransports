@@ -8,7 +8,7 @@ This tool uses station-radius search (1.5km around every transit stop) instead o
 
 ## 🗺️ Live Demo
 
-**[→ Open the Map](https://YOUR_USERNAME.github.io/south-bay-apartments/)**
+**[→ Open the Map](https://vishakadatta.github.io/SouthBayAptNearTransports/)**
 
 ## Stack
 
